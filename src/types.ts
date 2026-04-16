@@ -1,3 +1,11 @@
+export interface Offer {
+  otaName: string;
+  price: number;
+  conditions: string[];
+  isBestDeal?: boolean;
+  link: string;
+}
+
 export interface Property {
   id: string;
   name: string;
@@ -16,6 +24,7 @@ export interface Property {
     comment: string;
     rating: number;
   }[];
+  offers: Offer[];
 }
 
 export const MOCK_PROPERTIES: Property[] = [
@@ -50,6 +59,17 @@ export const MOCK_PROPERTIES: Property[] = [
     reviews: [
       { author: 'Elena R.', comment: 'The quietest place I have ever stayed in Greece. Truly a sanctuary.', rating: 5 },
       { author: 'Mark T.', comment: 'Stunning views, though the walk up from the port is a workout!', rating: 4 },
+    ],
+    offers: [
+      { otaName: 'Booking.com', price: 1240, conditions: ['Breakfast included', 'Free cancellation'], isBestDeal: true, link: '#' },
+      { otaName: 'Expedia', price: 1290, conditions: ['Breakfast included'], link: '#' },
+      { otaName: 'Agoda', price: 1310, conditions: ['Pay at property'], link: '#' },
+      { otaName: 'Hotels.com', price: 1325, conditions: ['Free cancellation'], link: '#' },
+      { otaName: 'Trip.com', price: 1340, conditions: ['Instant confirmation'], link: '#' },
+      { otaName: 'Priceline', price: 1355, conditions: ['Non-refundable'], link: '#' },
+      { otaName: 'Kayak', price: 1370, conditions: ['Free cancellation'], link: '#' },
+      { otaName: 'Trivago', price: 1385, conditions: ['Breakfast included'], link: '#' },
+      { otaName: 'Orbitz', price: 1400, conditions: ['Member deal'], link: '#' },
     ]
   },
   {
@@ -83,6 +103,17 @@ export const MOCK_PROPERTIES: Property[] = [
     reviews: [
       { author: 'Sarah L.', comment: 'Our golden retriever loved the garden! Very peaceful stay.', rating: 5 },
       { author: 'James B.', comment: 'Beautiful villa, but the internet was a bit frustrating for work.', rating: 4 },
+    ],
+    offers: [
+      { otaName: 'Airbnb', price: 980, conditions: ['Entire home', 'Free cancellation'], isBestDeal: true, link: '#' },
+      { otaName: 'Vrbo', price: 1020, conditions: ['Entire home'], link: '#' },
+      { otaName: 'Booking.com', price: 1050, conditions: ['Breakfast included'], link: '#' },
+      { otaName: 'Expedia', price: 1075, conditions: ['Free cancellation'], link: '#' },
+      { otaName: 'Agoda', price: 1090, conditions: ['Pay at property'], link: '#' },
+      { otaName: 'Hotels.com', price: 1105, conditions: ['Member price'], link: '#' },
+      { otaName: 'TripAdvisor', price: 1120, conditions: ['Best value'], link: '#' },
+      { otaName: 'Priceline', price: 1135, conditions: ['Instant book'], link: '#' },
+      { otaName: 'Orbitz', price: 1150, conditions: ['Free cancellation'], link: '#' },
     ]
   },
   {
@@ -116,6 +147,126 @@ export const MOCK_PROPERTIES: Property[] = [
     reviews: [
       { author: 'Lars O.', comment: 'The most incredible architectural feat. Total silence.', rating: 5 },
       { author: 'Mia K.', comment: 'A once-in-a-lifetime experience. Worth every penny.', rating: 5 },
+    ],
+    offers: [
+      { otaName: 'Hotels.com', price: 1560, conditions: ['Free cancellation', 'Collect stamps'], isBestDeal: true, link: '#' },
+      { otaName: 'Expedia', price: 1560, conditions: ['Free cancellation'], link: '#' },
+      { otaName: 'Booking.com', price: 1620, conditions: ['Breakfast included'], link: '#' },
+      { otaName: 'Agoda', price: 1645, conditions: ['Pay at property'], link: '#' },
+      { otaName: 'Trip.com', price: 1660, conditions: ['Instant confirmation'], link: '#' },
+      { otaName: 'Priceline', price: 1675, conditions: ['Non-refundable'], link: '#' },
+      { otaName: 'Kayak', price: 1690, conditions: ['Free cancellation'], link: '#' },
+      { otaName: 'Trivago', price: 1705, conditions: ['Breakfast included'], link: '#' },
+      { otaName: 'Orbitz', price: 1720, conditions: ['Member deal'], link: '#' },
     ]
+  },
+  {
+    id: '4',
+    name: 'Ocean Mist Villa',
+    location: 'Algarve, Portugal',
+    priceTotal: 850,
+    rating: 4.6,
+    quietScore: 8.8,
+    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=1000',
+    gallery: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800',
+    ],
+    aiInsight: 'Great for remote work. High-speed fiber internet confirmed by 90% of business travelers.',
+    pros: ['Fiber internet', 'Beach access', 'Modern kitchen'],
+    cons: ['Small balcony'],
+    redFlags: ['Street noise during weekends'],
+    reviews: [{ author: 'John D.', comment: 'Perfect for work and play.', rating: 5 }],
+    offers: [{ otaName: 'Booking.com', price: 850, conditions: ['Free cancellation'], isBestDeal: true, link: '#' }]
+  },
+  {
+    id: '5',
+    name: 'Mountain Peak Lodge',
+    location: 'Zermatt, Switzerland',
+    priceTotal: 2100,
+    rating: 4.9,
+    quietScore: 9.7,
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=1000',
+    gallery: [
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=800',
+    ],
+    aiInsight: 'Ultimate ski-in/ski-out experience. AI suggests booking 3 months in advance.',
+    pros: ['Ski-in/ski-out', 'Matterhorn view', 'Luxury spa'],
+    cons: ['Very expensive'],
+    redFlags: ['Limited availability'],
+    reviews: [{ author: 'Heidi S.', comment: 'Unbelievable views.', rating: 5 }],
+    offers: [{ otaName: 'Expedia', price: 2100, conditions: ['Breakfast included'], isBestDeal: true, link: '#' }]
+  },
+  {
+    id: '6',
+    name: 'Urban Oasis Loft',
+    location: 'Tokyo, Japan',
+    priceTotal: 720,
+    rating: 4.5,
+    quietScore: 8.5,
+    image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&q=80&w=1000',
+    gallery: [
+      'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&q=80&w=800',
+    ],
+    aiInsight: 'Surprisingly quiet for Shinjuku. Double-glazed windows perform exceptionally well.',
+    pros: ['Central location', 'Quiet interior', 'Minimalist design'],
+    cons: ['Compact space'],
+    redFlags: ['Difficult to find entrance'],
+    reviews: [{ author: 'Kenji M.', comment: 'A peaceful retreat in the city.', rating: 4 }],
+    offers: [{ otaName: 'Agoda', price: 720, conditions: ['Pay at property'], isBestDeal: true, link: '#' }]
+  },
+  {
+    id: '7',
+    name: 'Desert Mirage Resort',
+    location: 'Dubai, UAE',
+    priceTotal: 1800,
+    rating: 4.8,
+    quietScore: 9.0,
+    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=1000',
+    gallery: [
+      'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800',
+    ],
+    aiInsight: 'Luxury in the dunes. AI notes high guest satisfaction with the private butler service.',
+    pros: ['Private pool', 'Desert excursions', 'World-class dining'],
+    cons: ['Far from city center'],
+    redFlags: ['Sandstorms possible in summer'],
+    reviews: [{ author: 'Ahmed K.', comment: 'Pure luxury.', rating: 5 }],
+    offers: [{ otaName: 'Booking.com', price: 1800, conditions: ['All-inclusive'], isBestDeal: true, link: '#' }]
+  },
+  {
+    id: '8',
+    name: 'Coral Reef Bungalow',
+    location: 'Maldives',
+    priceTotal: 2500,
+    rating: 5.0,
+    quietScore: 9.9,
+    image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80&w=1000',
+    gallery: [
+      'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80&w=800',
+    ],
+    aiInsight: 'Breathtaking marine life. AI confirms over-water bungalows offer best privacy.',
+    pros: ['Over-water', 'Snorkeling from deck', 'Romantic setting'],
+    cons: ['Requires seaplane transfer'],
+    redFlags: ['High transfer costs'],
+    reviews: [{ author: 'Chloe W.', comment: 'Paradise found.', rating: 5 }],
+    offers: [{ otaName: 'Hotels.com', price: 2500, conditions: ['Free cancellation'], isBestDeal: true, link: '#' }]
+  },
+  {
+    id: '9',
+    name: 'Bamboo Forest Villa',
+    location: 'Kyoto, Japan',
+    priceTotal: 1100,
+    rating: 4.7,
+    quietScore: 9.4,
+    image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=1000',
+    gallery: [
+      'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800',
+    ],
+    aiInsight: 'Zen-like atmosphere. AI analysis of guest sentiment shows high praise for the tea ceremony.',
+    pros: ['Traditional ryokan style', 'Garden views', 'Cultural experiences'],
+    cons: ['Futon bedding only'],
+    redFlags: ['Curfew at 10 PM'],
+    reviews: [{ author: 'Yuki S.', comment: 'Very peaceful and authentic.', rating: 5 }],
+    offers: [{ otaName: 'Booking.com', price: 1100, conditions: ['Half board'], isBestDeal: true, link: '#' }]
   }
 ];
