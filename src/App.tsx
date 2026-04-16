@@ -201,7 +201,255 @@ const CalendarModal = ({ isOpen, onClose, range, setRange }: { isOpen: boolean, 
   );
 };
 
-const SearchDashboard = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, currency: Currency, isLoggedIn: boolean }) => {
+const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, currency: Currency, isLoggedIn: boolean }) => {
+  const [step, setStep] = useState(1);
+  const [tripTypes, setTripTypes] = useState<string[]>([]);
+  const [priorities, setPriorities] = useState<string[]>([]);
+  const [budget, setBudget] = useState(1000);
+  const [styleBoutique, setStyleBoutique] = useState(true);
+  const [stylePacker, setStylePacker] = useState(true);
+  const [isFinished, setIsFinished] = useState(false);
+
+  const tripOptions = ['Relaxation', 'Adventure', 'Culture & History', 'Food & Nightlife', 'Beach', 'Mountains', 'City Break'];
+  const priorityOptions = ['Location & Neighborhood', 'Cleanliness & Quiet', 'Unique Vibe', 'Price & Value', 'Trust & Reviews'];
+
+  const toggleTripType = (type: string) => {
+    setTripTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
+  };
+
+  const togglePriority = (priority: string) => {
+    if (priorities.includes(priority)) {
+      setPriorities(prev => prev.filter(p => p !== priority));
+    } else if (priorities.length < 3) {
+      setPriorities(prev => [...prev, priority]);
+    }
+  };
+
+  const nextStep = () => {
+    if (step < 3) setStep(step + 1);
+    else setIsFinished(true);
+  };
+
+  const prevStep = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
+  const renderStepIndicator = () => (
+    <div className="flex justify-center gap-2 mb-8">
+      {[1, 2, 3].map(s => (
+        <div 
+          key={s} 
+          className={`w-2 h-2 rounded-full transition-all duration-300 ${step === s ? 'w-6 bg-navy-900' : 'bg-slate-200'}`} 
+        />
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="p-10 min-h-[500px] flex flex-col">
+      <AnimatePresence mode="wait">
+        {!isFinished ? (
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="flex-grow"
+          >
+            {renderStepIndicator()}
+            
+            {step === 1 && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">What kind of trip are you after?</label>
+                  <h2 className="text-2xl font-display font-bold text-navy-900 mt-2">Select at least 2 vibes</h2>
+                </div>
+                <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
+                  {tripOptions.map(type => (
+                    <button
+                      key={type}
+                      onClick={() => toggleTripType(type)}
+                      className={`px-5 py-2.5 rounded-full border text-xs font-bold transition-all ${
+                        tripTypes.includes(type) 
+                          ? 'bg-navy-900 border-navy-900 text-white shadow-lg shadow-navy-900/20' 
+                          : 'border-slate-200 text-slate-500 hover:border-navy-900 hover:text-navy-900'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">What matters most to you?</label>
+                  <h2 className="text-2xl font-display font-bold text-navy-900 mt-2">Rank your top 3 priorities</h2>
+                </div>
+                <div className="space-y-3 max-w-md mx-auto">
+                  {priorityOptions.map(option => {
+                    const rank = priorities.indexOf(option) + 1;
+                    return (
+                      <button
+                        key={option}
+                        onClick={() => togglePriority(option)}
+                        className={`w-full p-4 rounded-2xl border flex items-center justify-between transition-all ${
+                          rank > 0 
+                            ? 'bg-navy-900 border-navy-900 text-white shadow-lg shadow-navy-900/20' 
+                            : 'bg-slate-50 border-slate-100 text-slate-600 hover:border-navy-900'
+                        }`}
+                      >
+                        <span className="font-bold text-sm">{option}</span>
+                        {rank > 0 && (
+                          <div className="w-6 h-6 bg-teal-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold">
+                            {rank}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-10">
+                <div className="text-center">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Your travel style</label>
+                  <h2 className="text-2xl font-display font-bold text-navy-900 mt-2">Fine-tune your preferences</h2>
+                </div>
+                
+                <div className="max-w-md mx-auto space-y-8">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-end">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Nightly Budget</label>
+                      <span className="text-xl font-bold text-navy-900">
+                        {currency === 'EUR' ? '€' : '$'}{budget}
+                      </span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="200" 
+                      max="2000" 
+                      step="100"
+                      value={budget}
+                      onChange={(e) => setBudget(parseInt(e.target.value))}
+                      className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-navy-900"
+                    />
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className={`text-xs font-bold transition-colors ${styleBoutique ? 'text-navy-900' : 'text-slate-400'}`}>Boutique / unique stays</span>
+                      <button 
+                        onClick={() => setStyleBoutique(!styleBoutique)}
+                        className={`w-14 h-7 rounded-full relative shrink-0 transition-colors ${styleBoutique ? 'bg-navy-900' : 'bg-teal-500'}`}
+                      >
+                        <motion.div 
+                          animate={{ x: styleBoutique ? 4 : 32 }}
+                          className="absolute top-1 w-5 h-5 bg-white rounded-full shadow-md" 
+                        />
+                      </button>
+                      <span className={`text-xs font-bold transition-colors ${!styleBoutique ? 'text-navy-900' : 'text-slate-400'}`}>Reliable / chain hotels</span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4">
+                      <span className={`text-xs font-bold transition-colors ${stylePacker ? 'text-navy-900' : 'text-slate-400'}`}>Light packers</span>
+                      <button 
+                        onClick={() => setStylePacker(!stylePacker)}
+                        className={`w-14 h-7 rounded-full relative shrink-0 transition-colors ${stylePacker ? 'bg-navy-900' : 'bg-teal-500'}`}
+                      >
+                        <motion.div 
+                          animate={{ x: stylePacker ? 4 : 32 }}
+                          className="absolute top-1 w-5 h-5 bg-white rounded-full shadow-md" 
+                        />
+                      </button>
+                      <span className={`text-xs font-bold transition-colors ${!stylePacker ? 'text-navy-900' : 'text-slate-400'}`}>Comfort & amenities</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-12 flex items-center justify-between max-w-md mx-auto w-full">
+              {step > 1 ? (
+                <button onClick={prevStep} className="text-slate-400 font-bold text-sm hover:text-navy-900 transition-colors">Back</button>
+              ) : <div />}
+              <button 
+                onClick={nextStep}
+                disabled={(step === 1 && tripTypes.length < 2) || (step === 2 && priorities.length < 1)}
+                className="bg-navy-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-navy-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {step === 3 ? 'Finish Profile' : 'Next Step'}
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center text-center space-y-8 py-4"
+          >
+            <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-2">
+              <Sparkles className="w-10 h-10 text-teal-500" />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-3xl font-display font-bold text-navy-900">
+                {isLoggedIn ? "Ready, Ivana — here are your matches" : "Your profile is ready"}
+              </h2>
+              <p className="text-slate-500">We've synthesized your preferences into a custom travel profile.</p>
+            </div>
+
+            <div className="w-full max-w-md bg-slate-50 rounded-3xl p-8 border border-slate-100 text-left space-y-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Your Vibe</label>
+                <div className="flex flex-wrap gap-2">
+                  {tripTypes.map(t => (
+                    <span key={t} className="px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-bold text-navy-900">{t}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Top Priority</label>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 bg-teal-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold">1</div>
+                  <span className="font-bold text-navy-900">{priorities[0]}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Budget</label>
+                  <p className="font-bold text-navy-900">{currency === 'EUR' ? '€' : '$'}{budget}/night</p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Style</label>
+                  <p className="font-bold text-navy-900">{styleBoutique ? 'Boutique' : 'Reliable'}</p>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={onSearch}
+              className="w-full max-w-md py-5 bg-navy-900 text-white rounded-[24px] font-display font-bold text-xl flex items-center justify-center gap-4 hover:bg-navy-800 transition-all group relative overflow-hidden shadow-2xl shadow-navy-900/30"
+            >
+              <div className="absolute inset-0 ai-sparkle opacity-0 group-hover:opacity-10 transition-opacity" />
+              <Sparkles className="w-6 h-6 text-teal-400" />
+              Find My Matches
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, currency: Currency, isLoggedIn: boolean }) => {
+  const [activeTab, setActiveTab] = useState<'search' | 'quiz'>('search');
   const [isExpanded, setIsExpanded] = useState(false);
   const [foodOption, setFoodOption] = useState('Breakfast');
   const [selectedEnv, setSelectedEnv] = useState<string[]>([]);
@@ -260,141 +508,183 @@ const SearchDashboard = ({ onSearch, currency, isLoggedIn }: { onSearch: () => v
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-5xl bg-white rounded-[40px] shadow-2xl shadow-navy-900/20 border border-slate-100 overflow-hidden"
         >
-          <div className="p-10 grid grid-cols-4 gap-8">
-            <div className="col-span-2 space-y-3">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Destination</label>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input 
-                  type="text" 
-                  placeholder="Where are you going?" 
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-300"
-                />
-              </div>
-            </div>
-            <div className="space-y-3">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Period</label>
-              <div 
-                onClick={() => setIsCalendarOpen(true)}
-                className="relative cursor-pointer group"
+          {/* Tab Switcher */}
+          <div className="flex justify-center pt-10 pb-2">
+            <div className="flex p-1.5 bg-slate-100 rounded-2xl w-fit">
+              <button 
+                onClick={() => setActiveTab('search')}
+                className={`px-8 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'search' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
               >
-                <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-hover:text-navy-900 transition-colors" />
-                <div className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl group-hover:border-navy-900 transition-all text-sm text-navy-900 font-medium">
-                  {dateRange.start && dateRange.end 
-                    ? `${format(dateRange.start, 'MMM d')} - ${format(dateRange.end, 'MMM d')}`
-                    : 'Select dates'}
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Budget</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
-                    {currency === 'EUR' ? '€' : '$'}
-                  </span>
-                  <input 
-                    type="number" 
-                    placeholder="Max" 
-                    className="w-full pl-10 pr-2 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-300"
-                  />
-                </div>
-              </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Travelers</label>
-                <div className="relative">
-                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <select className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl appearance-none focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium">
-                    <option>1</option>
-                    <option>2</option>
-                    <option>3</option>
-                    <option>4+</option>
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
+                <Search className="w-4 h-4" />
+                Search
+              </button>
+              <button 
+                onClick={() => setActiveTab('quiz')}
+                className={`px-8 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'quiz' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+              >
+                <Sparkles className="w-4 h-4" />
+                Couple Quiz
+              </button>
             </div>
           </div>
 
-          <div className="px-10 pb-10">
-            <button 
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-2 text-[10px] font-bold text-slate-400 hover:text-navy-900 uppercase tracking-widest transition-colors mb-8 ml-1"
-            >
-              <Filter className="w-4 h-4" />
-              Additional Criteria
-              <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                <ChevronDown className="w-4 h-4" />
+          <AnimatePresence mode="wait">
+            {activeTab === 'search' ? (
+              <motion.div
+                key="search-form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="p-10 grid grid-cols-4 gap-8">
+                  <div className="col-span-2 space-y-3">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Destination</label>
+                    <div className="relative">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input 
+                        type="text" 
+                        placeholder="Where are you going?" 
+                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-300"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Period</label>
+                    <div 
+                      onClick={() => setIsCalendarOpen(true)}
+                      className="relative cursor-pointer group"
+                    >
+                      <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-hover:text-navy-900 transition-colors" />
+                      <div className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl group-hover:border-navy-900 transition-all text-sm text-navy-900 font-medium">
+                        {dateRange.start && dateRange.end 
+                          ? `${format(dateRange.start, 'MMM d')} - ${format(dateRange.end, 'MMM d')}`
+                          : 'Select dates'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Budget</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+                          {currency === 'EUR' ? '€' : '$'}
+                        </span>
+                        <input 
+                          type="number" 
+                          placeholder="Max" 
+                          className="w-full pl-10 pr-2 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-300"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Travelers</label>
+                      <div className="relative">
+                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                        <select className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl appearance-none focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium">
+                          <option>1</option>
+                          <option>2</option>
+                          <option>3</option>
+                          <option>4+</option>
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-10 pb-10">
+                  <button 
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="flex items-center gap-2 text-[10px] font-bold text-slate-400 hover:text-navy-900 uppercase tracking-widest transition-colors mb-8 ml-1"
+                  >
+                    <Filter className="w-4 h-4" />
+                    Additional Criteria
+                    <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+                      <ChevronDown className="w-4 h-4" />
+                    </motion.div>
+                  </button>
+
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden space-y-10 mb-10"
+                      >
+                        <div className="grid grid-cols-2 gap-16">
+                          <div className="space-y-6">
+                            <h3 className="text-[10px] font-bold text-navy-900 uppercase tracking-[0.2em]">Environment</h3>
+                            <div className="flex flex-wrap gap-3">
+                              {['Quiet place', 'Pet friendly', 'Adults only', 'City center', 'Beachfront'].map(chip => (
+                                <button 
+                                  key={chip} 
+                                  onClick={() => toggleEnv(chip)}
+                                  className={`px-5 py-2.5 rounded-full border text-xs font-bold transition-all ${selectedEnv.includes(chip) ? 'bg-navy-900 border-navy-900 text-white' : 'border-slate-200 text-slate-500 hover:border-navy-900 hover:text-navy-900'}`}
+                                >
+                                  {chip}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="space-y-6">
+                            <h3 className="text-[10px] font-bold text-navy-900 uppercase tracking-[0.2em]">Smoking Policy</h3>
+                            <div className="flex items-center gap-4">
+                              <span className="text-sm font-bold text-slate-500">Smoking allowed</span>
+                              <button 
+                                onClick={() => setSmokingAllowed(!smokingAllowed)}
+                                className={`w-14 h-7 rounded-full relative transition-colors ${smokingAllowed ? 'bg-teal-500' : 'bg-slate-200'}`}
+                              >
+                                <motion.div 
+                                  animate={{ x: smokingAllowed ? 32 : 4 }}
+                                  className="absolute top-1 w-5 h-5 bg-white rounded-full shadow-md" 
+                                />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <h3 className="text-[10px] font-bold text-navy-900 uppercase tracking-[0.2em]">Meal Plans</h3>
+                          <div className="flex p-1.5 bg-slate-100 rounded-2xl w-fit">
+                            {['Breakfast', 'Half Board', 'All Inclusive'].map(option => (
+                              <button 
+                                key={option}
+                                onClick={() => setFoodOption(option)}
+                                className={`px-8 py-3 rounded-xl text-xs font-bold transition-all ${foodOption === option ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+                              >
+                                {option}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <button 
+                    onClick={onSearch}
+                    className="w-full py-5 bg-navy-900 text-white rounded-[24px] font-display font-bold text-xl flex items-center justify-center gap-4 hover:bg-navy-800 transition-all group relative overflow-hidden shadow-2xl shadow-navy-900/30"
+                  >
+                    <div className="absolute inset-0 ai-sparkle opacity-0 group-hover:opacity-10 transition-opacity" />
+                    <Sparkles className="w-6 h-6 text-teal-400" />
+                    Find My Perfect Match
+                  </button>
+                </div>
               </motion.div>
-            </button>
-
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.div 
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden space-y-10 mb-10"
-                >
-                  <div className="grid grid-cols-2 gap-16">
-                    <div className="space-y-6">
-                      <h3 className="text-[10px] font-bold text-navy-900 uppercase tracking-[0.2em]">Environment</h3>
-                      <div className="flex flex-wrap gap-3">
-                        {['Quiet place', 'Pet friendly', 'Adults only', 'City center', 'Beachfront'].map(chip => (
-                          <button 
-                            key={chip} 
-                            onClick={() => toggleEnv(chip)}
-                            className={`px-5 py-2.5 rounded-full border text-xs font-bold transition-all ${selectedEnv.includes(chip) ? 'bg-navy-900 border-navy-900 text-white' : 'border-slate-200 text-slate-500 hover:border-navy-900 hover:text-navy-900'}`}
-                          >
-                            {chip}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="space-y-6">
-                      <h3 className="text-[10px] font-bold text-navy-900 uppercase tracking-[0.2em]">Smoking Policy</h3>
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm font-bold text-slate-500">Smoking allowed</span>
-                        <button 
-                          onClick={() => setSmokingAllowed(!smokingAllowed)}
-                          className={`w-14 h-7 rounded-full relative transition-colors ${smokingAllowed ? 'bg-teal-500' : 'bg-slate-200'}`}
-                        >
-                          <motion.div 
-                            animate={{ x: smokingAllowed ? 32 : 4 }}
-                            className="absolute top-1 w-5 h-5 bg-white rounded-full shadow-md" 
-                          />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <h3 className="text-[10px] font-bold text-navy-900 uppercase tracking-[0.2em]">Meal Plans</h3>
-                    <div className="flex p-1.5 bg-slate-100 rounded-2xl w-fit">
-                      {['Breakfast', 'Half Board', 'All Inclusive'].map(option => (
-                        <button 
-                          key={option}
-                          onClick={() => setFoodOption(option)}
-                          className={`px-8 py-3 rounded-xl text-xs font-bold transition-all ${foodOption === option ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <button 
-              onClick={onSearch}
-              className="w-full py-5 bg-navy-900 text-white rounded-[24px] font-display font-bold text-xl flex items-center justify-center gap-4 hover:bg-navy-800 transition-all group relative overflow-hidden shadow-2xl shadow-navy-900/30"
-            >
-              <div className="absolute inset-0 ai-sparkle opacity-0 group-hover:opacity-10 transition-opacity" />
-              <Sparkles className="w-6 h-6 text-teal-400" />
-              Find My Perfect Match
-            </button>
-          </div>
+            ) : (
+              <motion.div
+                key="quiz-form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <CoupleQuiz onSearch={onSearch} currency={currency} isLoggedIn={isLoggedIn} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {!isLoggedIn && (
@@ -645,6 +935,39 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
               </div>
             </div>
           </div>
+          
+          {/* Guest Photos Strip */}
+          <section className="space-y-4">
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-bold text-navy-900">📷 Guest Photos</h3>
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold">47 photos</span>
+                </div>
+                <p className="text-xs text-slate-400 font-medium">From real travelers · Booking & Google</p>
+              </div>
+              <button className="text-xs font-bold text-action-blue hover:underline">See all guest photos →</button>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+              {property.guestPhotos.map((photo, i) => {
+                const platforms = [
+                  { label: 'B', color: 'bg-blue-600' },
+                  { label: 'G', color: 'bg-red-600' },
+                  { label: 'A', color: 'bg-[#FF5A5F]' }
+                ];
+                const platform = platforms[i % platforms.length];
+                
+                return (
+                  <div key={i} className="relative flex-shrink-0 w-[120px] h-[90px] rounded-xl overflow-hidden snap-start shadow-sm group cursor-zoom-in">
+                    <img src={photo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={`Guest ${i}`} referrerPolicy="no-referrer" />
+                    <div className={`absolute bottom-1.5 left-1.5 ${platform.color} text-white w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold shadow-lg`}>
+                      {platform.label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
           {/* AI Synthesis & Trust Dashboard */}
           <section className="space-y-8">
@@ -688,22 +1011,73 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
                 </div>
               </div>
 
-              <div className="bg-rose-50 rounded-3xl p-8 border border-rose-100 shadow-sm space-y-6">
-                <h3 className="font-bold text-rose-900 flex items-center gap-2">
+              <div className="space-y-6">
+                <h3 className="font-bold text-navy-900 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-rose-500" />
                   Red Flag Detection
                 </h3>
                 <div className="space-y-4">
-                  {property.redFlags.map(flag => (
-                    <div key={flag} className="p-4 bg-white rounded-2xl border border-rose-200 flex gap-3">
-                      <XCircle className="w-5 h-5 text-rose-500 shrink-0" />
-                      <p className="text-sm text-rose-900 font-medium">{flag}</p>
+                  {property.redFlags.map((flag, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`p-4 rounded-2xl border flex gap-3 relative overflow-hidden ${
+                        flag.severity === 'critical' 
+                          ? 'bg-rose-50 border-rose-100' 
+                          : 'bg-amber-50 border-amber-100'
+                      }`}
+                    >
+                      <div className={`absolute top-0 right-0 px-2 py-0.5 rounded-bl-lg text-[8px] font-bold uppercase tracking-wider ${
+                        flag.severity === 'critical' ? 'bg-rose-500 text-white' : 'bg-amber-500 text-white'
+                      }`}>
+                        {flag.severity}
+                      </div>
+                      {flag.severity === 'critical' ? (
+                        <XCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                      ) : (
+                        <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+                      )}
+                      <div>
+                        <p className={`text-sm font-bold mb-0.5 ${flag.severity === 'critical' ? 'text-rose-900' : 'text-amber-900'}`}>
+                          {flag.severity === 'critical' ? 'Critical Issue' : 'Minor Concern'}
+                        </p>
+                        <p className={`text-sm leading-relaxed ${flag.severity === 'critical' ? 'text-rose-800/80' : 'text-amber-800/80'}`}>
+                          {flag.text}
+                        </p>
+                      </div>
                     </div>
                   ))}
-                  <p className="text-xs text-rose-700/60 leading-relaxed italic">
+                  <p className="text-xs text-slate-400 leading-relaxed italic">
                     *Our AI flags potential risks based on cross-platform review patterns.
                   </p>
                 </div>
+              </div>
+            </div>
+
+            {/* Platform Ratings Synthesis */}
+            <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+              <h3 className="font-bold text-navy-900 mb-6 flex items-center gap-2">
+                <MapIcon className="w-5 h-5 text-action-blue" />
+                Cross-Platform Rating Synthesis
+              </h3>
+              <div className="grid grid-cols-4 gap-6">
+                {property.reviewSources.map((source, idx) => (
+                  <div key={idx} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{source.platform}</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                        <span className="text-sm font-bold text-navy-900">{source.rating}</span>
+                      </div>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-navy-900 rounded-full" 
+                        style={{ width: `${(source.rating / 5) * 100}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-medium">{source.reviewCount} reviews</p>
+                  </div>
+                ))}
               </div>
             </div>
           </section>
@@ -796,19 +1170,47 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
 
           {/* Guest Reviews */}
           <section id="reviews" className="space-y-8">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-3xl font-bold text-navy-900">Guest Reviews</h2>
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                <span className="text-xl font-bold text-navy-900">{property.rating}</span>
-                <span className="text-slate-400">• 1,240 verified reviews</span>
+            <div className="flex items-end justify-between">
+              <div>
+                <h2 className="font-display text-3xl font-bold text-navy-900 mb-2">Guest Reviews</h2>
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  <span className="text-xl font-bold text-navy-900">{property.rating}</span>
+                  <span className="text-slate-400 text-sm">• 1,240 verified reviews</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Aggregated across platforms</p>
+                <div className="flex gap-2">
+                  {property.reviewSources.map((source, idx) => {
+                    const colors: Record<string, string> = {
+                      'Booking': 'bg-blue-50 text-blue-600 border-blue-100',
+                      'Airbnb': 'bg-rose-50 text-rose-600 border-rose-100',
+                      'Google': 'bg-slate-50 text-slate-600 border-slate-100',
+                      'Expedia': 'bg-amber-50 text-amber-600 border-amber-100'
+                    };
+                    return (
+                      <div key={idx} className={`px-3 py-1.5 rounded-full border flex items-center gap-2 ${colors[source.platform] || 'bg-slate-50 border-slate-100'}`}>
+                        <span className="text-[10px] font-bold">{source.platform}</span>
+                        <div className="flex items-center gap-0.5">
+                          <Star className="w-2.5 h-2.5 fill-current" />
+                          <span className="text-xs font-bold">{source.rating}</span>
+                        </div>
+                        <span className="text-[10px] opacity-60">({source.reviewCount})</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-6">
               {property.reviews.map((review, i) => (
                 <div key={i} className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="font-bold text-navy-900">{review.author}</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-navy-900">{review.author}</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">via {review.source}</span>
+                    </div>
                     <div className="flex gap-0.5">
                       {[...Array(5)].map((_, j) => (
                         <Star key={j} className={`w-3.5 h-3.5 ${j < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
@@ -994,7 +1396,7 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <SearchDashboard onSearch={handleSearch} currency={currency} isLoggedIn={isLoggedIn} />
+              <SearchOrQuiz onSearch={handleSearch} currency={currency} isLoggedIn={isLoggedIn} />
             </motion.div>
           )}
 

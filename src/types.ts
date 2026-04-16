@@ -6,6 +6,8 @@ export interface Offer {
   link: string;
 }
 
+export type ReviewPlatform = 'Booking' | 'Airbnb' | 'Google' | 'Expedia';
+
 export interface Property {
   id: string;
   name: string;
@@ -15,14 +17,21 @@ export interface Property {
   quietScore: number;
   image: string;
   gallery: string[];
+  guestPhotos: string[];
   aiInsight: string;
   pros: string[];
   cons: string[];
-  redFlags: string[];
+  redFlags: { text: string; severity: 'critical' | 'minor' }[];
+  reviewSources: {
+    platform: ReviewPlatform;
+    rating: number;
+    reviewCount: number;
+  }[];
   reviews: {
     author: string;
     comment: string;
     rating: number;
+    source: ReviewPlatform;
   }[];
   offers: Offer[];
 }
@@ -42,6 +51,11 @@ export const MOCK_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=800',
       'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&q=80&w=800&sig=1',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800&sig=2',
+      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=800&sig=3',
+    ],
     aiInsight: 'Perfect for deep relaxation. Synthesized reviews highlight the soundproof walls and private terrace.',
     pros: [
       'Exceptional soundproofing',
@@ -54,11 +68,16 @@ export const MOCK_PROPERTIES: Property[] = [
       'Steps are steep (typical for Oia)'
     ],
     redFlags: [
-      'Noise risk: Construction nearby (ends May 2024)',
+      { text: 'Noise risk: Construction nearby (ends May 2024)', severity: 'critical' },
+    ],
+    reviewSources: [
+      { platform: 'Booking', rating: 4.9, reviewCount: 450 },
+      { platform: 'Google', rating: 4.8, reviewCount: 1200 },
+      { platform: 'Expedia', rating: 4.7, reviewCount: 320 },
     ],
     reviews: [
-      { author: 'Elena R.', comment: 'The quietest place I have ever stayed in Greece. Truly a sanctuary.', rating: 5 },
-      { author: 'Mark T.', comment: 'Stunning views, though the walk up from the port is a workout!', rating: 4 },
+      { author: 'Elena R.', comment: 'The quietest place I have ever stayed in Greece. Truly a sanctuary.', rating: 5, source: 'Booking' },
+      { author: 'Mark T.', comment: 'Stunning views, though the walk up from the port is a workout!', rating: 4, source: 'Google' },
     ],
     offers: [
       { otaName: 'Booking.com', price: 1240, conditions: ['Breakfast included', 'Free cancellation'], isBestDeal: true, link: '#' },
@@ -86,6 +105,10 @@ export const MOCK_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=800',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&q=80&w=800&sig=4',
+      'https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&q=80&w=800&sig=5',
+    ],
     aiInsight: 'Highly recommended for pet owners. The enclosed garden is a top-rated feature in recent guest feedback.',
     pros: [
       'Large enclosed garden',
@@ -98,11 +121,16 @@ export const MOCK_PROPERTIES: Property[] = [
       'Requires a car for groceries'
     ],
     redFlags: [
-      'Location inaccuracy: 15 mins further from Florence than listed',
+      { text: 'Location inaccuracy: 15 mins further from Florence than listed', severity: 'minor' },
+    ],
+    reviewSources: [
+      { platform: 'Airbnb', rating: 4.8, reviewCount: 85 },
+      { platform: 'Google', rating: 4.6, reviewCount: 150 },
+      { platform: 'Booking', rating: 4.7, reviewCount: 210 },
     ],
     reviews: [
-      { author: 'Sarah L.', comment: 'Our golden retriever loved the garden! Very peaceful stay.', rating: 5 },
-      { author: 'James B.', comment: 'Beautiful villa, but the internet was a bit frustrating for work.', rating: 4 },
+      { author: 'Sarah L.', comment: 'Our golden retriever loved the garden! Very peaceful stay.', rating: 5, source: 'Airbnb' },
+      { author: 'James B.', comment: 'Beautiful villa, but the internet was a bit frustrating for work.', rating: 4, source: 'Booking' },
     ],
     offers: [
       { otaName: 'Airbnb', price: 980, conditions: ['Entire home', 'Free cancellation'], isBestDeal: true, link: '#' },
@@ -130,6 +158,10 @@ export const MOCK_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&q=80&w=800',
       'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1449156001935-d2863fb72690?auto=format&fit=crop&q=80&w=800&sig=6',
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800&sig=7',
+    ],
     aiInsight: 'Unmatched privacy. AI analysis of 500+ photos confirms no neighboring properties within 1km.',
     pros: [
       '360-degree mountain views',
@@ -142,11 +174,16 @@ export const MOCK_PROPERTIES: Property[] = [
       'Remote location (2h from airport)'
     ],
     redFlags: [
-      'Hidden cleaning fees: $150 extra not shown on some platforms',
+      { text: 'Hidden cleaning fees: $150 extra not shown on some platforms', severity: 'critical' },
+    ],
+    reviewSources: [
+      { platform: 'Expedia', rating: 5.0, reviewCount: 45 },
+      { platform: 'Google', rating: 4.9, reviewCount: 110 },
+      { platform: 'Booking', rating: 5.0, reviewCount: 60 },
     ],
     reviews: [
-      { author: 'Lars O.', comment: 'The most incredible architectural feat. Total silence.', rating: 5 },
-      { author: 'Mia K.', comment: 'A once-in-a-lifetime experience. Worth every penny.', rating: 5 },
+      { author: 'Lars O.', comment: 'The most incredible architectural feat. Total silence.', rating: 5, source: 'Expedia' },
+      { author: 'Mia K.', comment: 'A once-in-a-lifetime experience. Worth every penny.', rating: 5, source: 'Google' },
     ],
     offers: [
       { otaName: 'Hotels.com', price: 1560, conditions: ['Free cancellation', 'Collect stamps'], isBestDeal: true, link: '#' },
@@ -172,11 +209,22 @@ export const MOCK_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800',
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800&sig=8',
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800&sig=9',
+    ],
     aiInsight: 'Great for remote work. High-speed fiber internet confirmed by 90% of business travelers.',
     pros: ['Fiber internet', 'Beach access', 'Modern kitchen'],
     cons: ['Small balcony'],
-    redFlags: ['Street noise during weekends'],
-    reviews: [{ author: 'John D.', comment: 'Perfect for work and play.', rating: 5 }],
+    redFlags: [
+      { text: 'Street noise during weekends', severity: 'critical' },
+    ],
+    reviewSources: [
+      { platform: 'Booking', rating: 4.6, reviewCount: 320 },
+      { platform: 'Google', rating: 4.5, reviewCount: 500 },
+      { platform: 'Expedia', rating: 4.4, reviewCount: 150 },
+    ],
+    reviews: [{ author: 'John D.', comment: 'Perfect for work and play.', rating: 5, source: 'Booking' }],
     offers: [{ otaName: 'Booking.com', price: 850, conditions: ['Free cancellation'], isBestDeal: true, link: '#' }]
   },
   {
@@ -190,11 +238,21 @@ export const MOCK_PROPERTIES: Property[] = [
     gallery: [
       'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=800&sig=10',
+    ],
     aiInsight: 'Ultimate ski-in/ski-out experience. AI suggests booking 3 months in advance.',
     pros: ['Ski-in/ski-out', 'Matterhorn view', 'Luxury spa'],
     cons: ['Very expensive'],
-    redFlags: ['Limited availability'],
-    reviews: [{ author: 'Heidi S.', comment: 'Unbelievable views.', rating: 5 }],
+    redFlags: [
+      { text: 'Limited availability', severity: 'minor' },
+    ],
+    reviewSources: [
+      { platform: 'Expedia', rating: 4.9, reviewCount: 200 },
+      { platform: 'Google', rating: 4.8, reviewCount: 450 },
+      { platform: 'Booking', rating: 4.9, reviewCount: 310 },
+    ],
+    reviews: [{ author: 'Heidi S.', comment: 'Unbelievable views.', rating: 5, source: 'Expedia' }],
     offers: [{ otaName: 'Expedia', price: 2100, conditions: ['Breakfast included'], isBestDeal: true, link: '#' }]
   },
   {
@@ -208,11 +266,21 @@ export const MOCK_PROPERTIES: Property[] = [
     gallery: [
       'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&q=80&w=800&sig=11',
+    ],
     aiInsight: 'Surprisingly quiet for Shinjuku. Double-glazed windows perform exceptionally well.',
     pros: ['Central location', 'Quiet interior', 'Minimalist design'],
     cons: ['Compact space'],
-    redFlags: ['Difficult to find entrance'],
-    reviews: [{ author: 'Kenji M.', comment: 'A peaceful retreat in the city.', rating: 4 }],
+    redFlags: [
+      { text: 'Difficult to find entrance', severity: 'minor' },
+    ],
+    reviewSources: [
+      { platform: 'Expedia', rating: 4.5, reviewCount: 800 },
+      { platform: 'Google', rating: 4.4, reviewCount: 1200 },
+      { platform: 'Booking', rating: 4.5, reviewCount: 600 },
+    ],
+    reviews: [{ author: 'Kenji M.', comment: 'A peaceful retreat in the city.', rating: 4, source: 'Google' }],
     offers: [{ otaName: 'Agoda', price: 720, conditions: ['Pay at property'], isBestDeal: true, link: '#' }]
   },
   {
@@ -226,11 +294,21 @@ export const MOCK_PROPERTIES: Property[] = [
     gallery: [
       'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=800&sig=12',
+    ],
     aiInsight: 'Luxury in the dunes. AI notes high guest satisfaction with the private butler service.',
     pros: ['Private pool', 'Desert excursions', 'World-class dining'],
     cons: ['Far from city center'],
-    redFlags: ['Sandstorms possible in summer'],
-    reviews: [{ author: 'Ahmed K.', comment: 'Pure luxury.', rating: 5 }],
+    redFlags: [
+      { text: 'Sandstorms possible in summer', severity: 'minor' },
+    ],
+    reviewSources: [
+      { platform: 'Booking', rating: 4.8, reviewCount: 1500 },
+      { platform: 'Expedia', rating: 4.7, reviewCount: 600 },
+      { platform: 'Google', rating: 4.9, reviewCount: 2200 },
+    ],
+    reviews: [{ author: 'Ahmed K.', comment: 'Pure luxury.', rating: 5, source: 'Booking' }],
     offers: [{ otaName: 'Booking.com', price: 1800, conditions: ['All-inclusive'], isBestDeal: true, link: '#' }]
   },
   {
@@ -244,11 +322,21 @@ export const MOCK_PROPERTIES: Property[] = [
     gallery: [
       'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80&w=800&sig=13',
+    ],
     aiInsight: 'Breathtaking marine life. AI confirms over-water bungalows offer best privacy.',
     pros: ['Over-water', 'Snorkeling from deck', 'Romantic setting'],
     cons: ['Requires seaplane transfer'],
-    redFlags: ['High transfer costs'],
-    reviews: [{ author: 'Chloe W.', comment: 'Paradise found.', rating: 5 }],
+    redFlags: [
+      { text: 'High transfer costs', severity: 'critical' },
+    ],
+    reviewSources: [
+      { platform: 'Expedia', rating: 5.0, reviewCount: 80 },
+      { platform: 'Google', rating: 5.0, reviewCount: 200 },
+      { platform: 'Booking', rating: 4.9, reviewCount: 150 },
+    ],
+    reviews: [{ author: 'Chloe W.', comment: 'Paradise found.', rating: 5, source: 'Google' }],
     offers: [{ otaName: 'Hotels.com', price: 2500, conditions: ['Free cancellation'], isBestDeal: true, link: '#' }]
   },
   {
@@ -262,11 +350,21 @@ export const MOCK_PROPERTIES: Property[] = [
     gallery: [
       'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800',
     ],
+    guestPhotos: [
+      'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800&sig=14',
+    ],
     aiInsight: 'Zen-like atmosphere. AI analysis of guest sentiment shows high praise for the tea ceremony.',
     pros: ['Traditional ryokan style', 'Garden views', 'Cultural experiences'],
     cons: ['Futon bedding only'],
-    redFlags: ['Curfew at 10 PM'],
-    reviews: [{ author: 'Yuki S.', comment: 'Very peaceful and authentic.', rating: 5 }],
+    redFlags: [
+      { text: 'Curfew at 10 PM', severity: 'minor' },
+    ],
+    reviewSources: [
+      { platform: 'Booking', rating: 4.7, reviewCount: 400 },
+      { platform: 'Airbnb', rating: 4.8, reviewCount: 120 },
+      { platform: 'Google', rating: 4.6, reviewCount: 300 },
+    ],
+    reviews: [{ author: 'Yuki S.', comment: 'Very peaceful and authentic.', rating: 5, source: 'Booking' }],
     offers: [{ otaName: 'Booking.com', price: 1100, conditions: ['Half board'], isBestDeal: true, link: '#' }]
   }
 ];
