@@ -40,7 +40,7 @@ interface DateRange {
 
 // --- Components ---
 
-const Navbar = ({ onHome, currency, setCurrency, isLoggedIn, onSignOut, onNavigateSettings }: { onHome: () => void, currency: Currency, setCurrency: (c: Currency) => void, isLoggedIn: boolean, onSignOut: () => void, onNavigateSettings: () => void }) => {
+const Navbar = ({ onHome, currency, setCurrency, isLoggedIn, onSignOut, onNavigateSettings, onNavigateTrips }: { onHome: () => void, currency: Currency, setCurrency: (c: Currency) => void, isLoggedIn: boolean, onSignOut: () => void, onNavigateSettings: () => void, onNavigateTrips: () => void }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
@@ -91,7 +91,10 @@ const Navbar = ({ onHome, currency, setCurrency, isLoggedIn, onSignOut, onNaviga
                   exit={{ opacity: 0, y: 10 }}
                   className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-xl py-2 z-50 flex flex-col"
                 >
-                  <button className="px-4 py-2 text-left text-sm font-medium text-slate-600 hover:text-navy-900 hover:bg-slate-50 transition-colors">
+                  <button 
+                    onClick={() => { setDropdownOpen(false); onNavigateTrips(); }}
+                    className="px-4 py-2 text-left text-sm font-medium text-slate-600 hover:text-navy-900 hover:bg-slate-50 transition-colors"
+                  >
                     My Trips
                   </button>
                   <button 
@@ -1640,6 +1643,226 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
   );
 };
 
+interface Trip {
+  id: string;
+  propertyName: string;
+  location: string;
+  dates: string;
+  nights: number;
+  platform: string;
+  totalPrice: number;
+  status: 'confirmed' | 'pending' | 'completed';
+  image: string;
+}
+
+const MOCK_TRIPS: Trip[] = [
+  {
+    id: 't1',
+    propertyName: 'Azure Bay Retreat',
+    location: 'Santorini, Greece',
+    dates: 'Jun 12 – Jun 19, 2026',
+    nights: 7,
+    platform: 'Booking.com',
+    totalPrice: 1240,
+    status: 'confirmed',
+    image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 't2',
+    propertyName: 'Pine Shadow Villa',
+    location: 'Tuscany, Italy',
+    dates: 'Aug 3 – Aug 10, 2026',
+    nights: 7,
+    platform: 'Airbnb',
+    totalPrice: 980,
+    status: 'pending',
+    image: 'https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 't3',
+    propertyName: 'Urban Oasis Loft',
+    location: 'Tokyo, Japan',
+    dates: 'Jan 5 – Jan 12, 2026',
+    nights: 7,
+    platform: 'Agoda',
+    totalPrice: 720,
+    status: 'completed',
+    image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 't4',
+    propertyName: 'Ocean Mist Villa',
+    location: 'Algarve, Portugal',
+    dates: 'Mar 20 – Mar 27, 2026',
+    nights: 7,
+    platform: 'Booking.com',
+    totalPrice: 850,
+    status: 'completed',
+    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800'
+  }
+];
+
+const MyTrips = ({ onHome, onViewDetails, currency }: { onHome: () => void, onViewDetails: (propertyName: string) => void, currency: Currency }) => {
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+  const upcomingTrips = MOCK_TRIPS.filter(t => t.status === 'confirmed' || t.status === 'pending');
+  const pastTrips = MOCK_TRIPS.filter(t => t.status === 'completed');
+  const activeTrips = activeTab === 'upcoming' ? upcomingTrips : pastTrips;
+
+  return (
+    <div className="pt-24 pb-20 px-8 max-w-7xl mx-auto min-h-screen">
+      <h1 className="font-display text-4xl font-bold text-navy-900 mb-2">My Trips</h1>
+      <p className="text-slate-500 text-base mb-10">Your upcoming and past getaways</p>
+
+      <div className="flex p-1 bg-slate-100 rounded-lg w-fit mb-8">
+        <button 
+          onClick={() => setActiveTab('upcoming')}
+          className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'upcoming' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+        >
+          Upcoming ({upcomingTrips.length})
+        </button>
+        <button 
+          onClick={() => setActiveTab('past')}
+          className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${activeTab === 'past' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+        >
+          Past ({pastTrips.length})
+        </button>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {activeTrips.length === 0 ? (
+          <motion.div 
+            key="empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col items-center justify-center py-24"
+          >
+            <MapPin className="w-12 h-12 text-slate-300 mb-4" />
+            <h2 className="font-display text-xl font-bold text-navy-900 mb-2">No trips yet</h2>
+            <p className="text-slate-500 text-sm mb-6">Start planning your next getaway</p>
+            <button 
+              onClick={onHome}
+              className="bg-navy-900 text-white rounded-xl px-8 py-3 font-bold hover:bg-navy-800 transition-colors"
+            >
+              Start Planning
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="list"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
+          >
+            {activeTrips.map(trip => (
+              <div key={trip.id} className="rounded-3xl bg-white border border-slate-100 shadow-sm overflow-hidden flex flex-row h-[200px]">
+                <div className="w-[280px] h-full flex-shrink-0 relative">
+                  <img 
+                    src={trip.image} 
+                    alt={trip.propertyName} 
+                    className={`w-full h-full object-cover ${activeTab === 'past' ? 'opacity-80' : ''}`}
+                    referrerPolicy="no-referrer"
+                    style={activeTab === 'past' ? { filter: 'grayscale(40%)' } : {}}
+                  />
+                </div>
+                <div className="p-6 flex flex-col justify-between flex-grow">
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-display text-xl font-bold text-navy-900">{trip.propertyName}</h3>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        trip.status === 'confirmed' ? 'bg-teal-50 text-teal-700 border border-teal-200' :
+                        trip.status === 'pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                        'bg-slate-100 text-slate-500 border border-slate-200'
+                      }`}>
+                        {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-500 text-sm mb-1">
+                      <MapPin className="w-4 h-4" />
+                      {trip.location}
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-500 text-sm mb-3">
+                      <CalendarIcon className="w-4 h-4" />
+                      {trip.dates}
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg text-xs font-medium text-slate-600 border border-slate-100">
+                      <span className={`w-2 h-2 rounded-full ${
+                        trip.platform === 'Booking.com' ? 'bg-blue-500' :
+                        trip.platform === 'Airbnb' ? 'bg-red-500' :
+                        'bg-orange-500'
+                      }`} />
+                      {trip.platform}
+                    </div>
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <div className="font-display text-2xl font-bold text-navy-900">
+                        {currency === 'EUR' ? '€' : '$'}{trip.totalPrice}
+                      </div>
+                      <div className="text-slate-400 text-xs mt-1">
+                        {trip.nights} nights · {trip.platform}
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      {activeTab === 'upcoming' ? (
+                        <>
+                          <button className="border border-slate-200 text-navy-900 rounded-xl px-4 py-2.5 text-sm font-bold flex items-center justify-center hover:bg-slate-50 transition-colors">
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => onViewDetails(trip.propertyName)}
+                            className="bg-navy-900 text-white rounded-xl px-5 py-2.5 text-sm font-bold hover:bg-navy-800 transition-colors"
+                          >
+                            View Details
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button 
+                            onClick={() => setIsReviewModalOpen(true)}
+                            className="border border-slate-200 text-navy-900 rounded-xl px-4 py-2.5 text-sm font-bold hover:bg-slate-50 transition-colors"
+                          >
+                            Leave a Review
+                          </button>
+                          <button 
+                            onClick={onHome}
+                            className="bg-navy-900 text-white rounded-xl px-5 py-2.5 text-sm font-bold hover:bg-navy-800 transition-colors"
+                          >
+                            Book Again
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isReviewModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-navy-900/40 backdrop-blur-sm" onClick={() => setIsReviewModalOpen(false)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-8 text-center">
+              <h2 className="font-display font-bold text-navy-900 text-xl mb-3">Thanks for sharing!</h2>
+              <p className="text-slate-500 text-sm mb-6">Your review helps other travelers make confident decisions.</p>
+              <button onClick={() => setIsReviewModalOpen(false)} className="w-full bg-navy-900 text-white rounded-xl py-4 font-bold hover:bg-navy-800 transition-all">
+                Close
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 const Settings = ({ onBack }: { onBack: () => void }) => {
   return (
     <div className="min-h-screen pt-24 pb-20 px-8 max-w-7xl mx-auto">
@@ -1671,7 +1894,7 @@ const Settings = ({ onBack }: { onBack: () => void }) => {
 // --- Main App ---
 
 export default function App() {
-  const [screen, setScreen] = useState<'search' | 'shortlist' | 'detail' | 'settings'>('search');
+  const [screen, setScreen] = useState<'search' | 'shortlist' | 'detail' | 'settings' | 'trips'>('search');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [isLoggedIn, setIsLoggedIn] = useState(true); // Default to true based on user flow
@@ -1683,6 +1906,14 @@ export default function App() {
   const handleSelectProperty = (p: Property) => {
     setSelectedProperty(p);
     setScreen('detail');
+  };
+
+  const handleViewDetailsFromTrips = (propertyName: string) => {
+    const prop = MOCK_PROPERTIES.find(p => p.name === propertyName);
+    if (prop) {
+      setSelectedProperty(prop);
+      setScreen('detail');
+    }
   };
 
   const handleBackToShortlist = () => {
@@ -1708,6 +1939,7 @@ export default function App() {
         isLoggedIn={isLoggedIn} 
         onSignOut={handleSignOut}
         onNavigateSettings={() => setScreen('settings')}
+        onNavigateTrips={() => setScreen('trips')}
       />
       
       <main>
@@ -1715,8 +1947,8 @@ export default function App() {
           {screen === 'search' && (
             <motion.div
               key="search"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
@@ -1727,8 +1959,8 @@ export default function App() {
           {screen === 'shortlist' && (
             <motion.div
               key="shortlist"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
@@ -1739,8 +1971,8 @@ export default function App() {
           {screen === 'detail' && selectedProperty && (
             <motion.div
               key="detail"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
@@ -1755,12 +1987,23 @@ export default function App() {
           {screen === 'settings' && (
             <motion.div
               key="settings"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
               <Settings onBack={() => setScreen('search')} />
+            </motion.div>
+          )}
+          {screen === 'trips' && (
+            <motion.div
+              key="trips"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <MyTrips onHome={() => setScreen('search')} onViewDetails={handleViewDetailsFromTrips} currency={currency} />
             </motion.div>
           )}
         </AnimatePresence>
