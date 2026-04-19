@@ -40,52 +40,87 @@ interface DateRange {
 
 // --- Components ---
 
-const Navbar = ({ onHome, currency, setCurrency, isLoggedIn }: { onHome: () => void, currency: Currency, setCurrency: (c: Currency) => void, isLoggedIn: boolean }) => (
-  <nav className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50 px-8 flex items-center justify-between">
-    <div 
-      className="flex items-center gap-2 cursor-pointer" 
-      onClick={onHome}
-    >
-      <div className="w-8 h-8 bg-navy-900 rounded-lg flex items-center justify-center">
-        <Sparkles className="w-5 h-5 text-teal-500" />
-      </div>
-      <span className="font-display font-bold text-xl tracking-tight text-navy-900">Getaway</span>
-    </div>
-    <div className="flex items-center gap-6">
-      <div className="flex p-1 bg-slate-100 rounded-lg">
-        {(['EUR', 'USD'] as Currency[]).map(c => (
-          <button 
-            key={c}
-            onClick={() => setCurrency(c)}
-            className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${currency === c ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-      {isLoggedIn ? (
-        <>
-          <button className="text-sm font-medium text-slate-600 hover:text-navy-900 transition-colors">My Trips</button>
-          <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
-            <span className="text-sm font-medium text-navy-900">Ivana</span>
-            <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
-              <img 
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100" 
-                alt="User" 
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="flex items-center gap-4">
-          <button className="text-sm font-bold text-navy-900 hover:text-navy-700 transition-colors">Sign In</button>
-          <button className="px-5 py-2 bg-navy-900 text-white rounded-xl text-sm font-bold hover:bg-navy-800 transition-all">Join Getaway</button>
+const Navbar = ({ onHome, currency, setCurrency, isLoggedIn, onSignOut, onNavigateSettings }: { onHome: () => void, currency: Currency, setCurrency: (c: Currency) => void, isLoggedIn: boolean, onSignOut: () => void, onNavigateSettings: () => void }) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50 px-8 flex items-center justify-between">
+      <div 
+        className="flex items-center gap-2 cursor-pointer" 
+        onClick={onHome}
+      >
+        <div className="w-8 h-8 bg-navy-900 rounded-lg flex items-center justify-center">
+          <Sparkles className="w-5 h-5 text-teal-500" />
         </div>
-      )}
-    </div>
-  </nav>
-);
+        <span className="font-display font-bold text-xl tracking-tight text-navy-900">Getaway</span>
+      </div>
+      <div className="flex items-center gap-6">
+        <div className="flex p-1 bg-slate-100 rounded-lg">
+          {(['EUR', 'USD'] as Currency[]).map(c => (
+            <button 
+              key={c}
+              onClick={() => setCurrency(c)}
+              className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${currency === c ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+        {isLoggedIn ? (
+          <div className="relative">
+            <div 
+              className="flex items-center gap-3 pl-6 border-l border-slate-200 cursor-pointer"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <span className="text-sm font-medium text-navy-900">Ivana</span>
+              <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
+                <img 
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100" 
+                  alt="User" 
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </div>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-xl py-2 z-50 flex flex-col"
+                >
+                  <button className="px-4 py-2 text-left text-sm font-medium text-slate-600 hover:text-navy-900 hover:bg-slate-50 transition-colors">
+                    My Trips
+                  </button>
+                  <button 
+                    onClick={() => { setDropdownOpen(false); onNavigateSettings(); }}
+                    className="px-4 py-2 text-left text-sm font-medium text-slate-600 hover:text-navy-900 hover:bg-slate-50 transition-colors"
+                  >
+                    Account Settings
+                  </button>
+                  <div className="h-px bg-slate-100 my-1 font-bold"></div>
+                  <button 
+                    onClick={() => { setDropdownOpen(false); onSignOut(); }}
+                    className="px-4 py-2 text-left text-sm font-bold text-rose-500 hover:bg-slate-50 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <button className="text-sm font-bold text-navy-900 hover:text-navy-700 transition-colors">Sign In</button>
+            <button className="px-5 py-2 bg-navy-900 text-white rounded-xl text-sm font-bold hover:bg-navy-800 transition-all">Join Getaway</button>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+};
 
 const CalendarModal = ({ isOpen, onClose, range, setRange }: { isOpen: boolean, onClose: () => void, range: DateRange, setRange: (r: DateRange) => void }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -201,8 +236,9 @@ const CalendarModal = ({ isOpen, onClose, range, setRange }: { isOpen: boolean, 
   );
 };
 
-const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, currency: Currency, isLoggedIn: boolean }) => {
+const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?: 'per_night' | 'total', budgetValue?: number) => void, currency: Currency, isLoggedIn: boolean }) => {
   const [step, setStep] = useState(1);
+  const [travelType, setTravelType] = useState<string>('');
   const [tripTypes, setTripTypes] = useState<string[]>([]);
   const [priorities, setPriorities] = useState<string[]>([]);
   const [budget, setBudget] = useState(1000);
@@ -212,6 +248,13 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
 
   const tripOptions = ['Relaxation', 'Adventure', 'Culture & History', 'Food & Nightlife', 'Beach', 'Mountains', 'City Break'];
   const priorityOptions = ['Location & Neighborhood', 'Cleanliness & Quiet', 'Unique Vibe', 'Price & Value', 'Trust & Reviews'];
+  const travelTypeOptions = [
+    { id: 'solo', icon: '🧳', label: 'Just me (solo)' },
+    { id: 'partner', icon: '💑', label: 'Me & my partner' },
+    { id: 'family', icon: '👨‍👩‍👧', label: 'Family with kids' },
+    { id: 'friends', icon: '👯', label: 'Friends group' },
+    { id: 'business', icon: '💼', label: 'Business travel' }
+  ];
 
   const toggleTripType = (type: string) => {
     setTripTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
@@ -226,7 +269,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
   };
 
   const nextStep = () => {
-    if (step < 3) setStep(step + 1);
+    if (step < 4) setStep(step + 1);
     else setIsFinished(true);
   };
 
@@ -236,7 +279,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
 
   const renderStepIndicator = () => (
     <div className="flex justify-center gap-2 mb-8">
-      {[1, 2, 3].map(s => (
+      {[1, 2, 3, 4].map(s => (
         <div 
           key={s} 
           className={`w-2 h-2 rounded-full transition-all duration-300 ${step === s ? 'w-6 bg-navy-900' : 'bg-slate-200'}`} 
@@ -261,6 +304,31 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
             {step === 1 && (
               <div className="space-y-8">
                 <div className="text-center">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Who's this trip for?</label>
+                  <h2 className="text-2xl font-display font-bold text-navy-900 mt-2">Select your travel group</h2>
+                </div>
+                <div className="space-y-3 max-w-md mx-auto">
+                  {travelTypeOptions.map(option => (
+                    <button
+                      key={option.id}
+                      onClick={() => setTravelType(option.id)}
+                      className={`w-full p-4 rounded-2xl border flex items-center gap-4 text-sm font-bold text-navy-900 cursor-pointer transition-all ${
+                        travelType === option.id
+                          ? 'border-navy-900 bg-navy-50'
+                          : 'border-slate-200 hover:border-navy-900'
+                      }`}
+                    >
+                      <span className="text-2xl">{option.icon}</span>
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-8">
+                <div className="text-center">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">What kind of trip are you after?</label>
                   <h2 className="text-2xl font-display font-bold text-navy-900 mt-2">Select at least 2 vibes</h2>
                 </div>
@@ -282,7 +350,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
               </div>
             )}
 
-            {step === 2 && (
+            {step === 3 && (
               <div className="space-y-8">
                 <div className="text-center">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">What matters most to you?</label>
@@ -314,7 +382,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-10">
                 <div className="text-center">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Your travel style</label>
@@ -379,10 +447,10 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
               ) : <div />}
               <button 
                 onClick={nextStep}
-                disabled={(step === 1 && tripTypes.length < 2) || (step === 2 && priorities.length < 1)}
+                disabled={(step === 1 && !travelType) || (step === 2 && tripTypes.length < 2) || (step === 3 && priorities.length < 1)}
                 className="bg-navy-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-navy-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {step === 3 ? 'Finish Profile' : 'Next Step'}
+                {step === 4 ? 'Finish Profile' : 'Next Step'}
               </button>
             </div>
           </motion.div>
@@ -404,6 +472,11 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
             </div>
 
             <div className="w-full max-w-md bg-slate-50 rounded-3xl p-8 border border-slate-100 text-left space-y-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Traveling as</label>
+                <div className="font-bold text-navy-900">{travelTypeOptions.find(t => t.id === travelType)?.label}</div>
+              </div>
+
               <div className="space-y-3">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Your Vibe</label>
                 <div className="flex flex-wrap gap-2">
@@ -448,14 +521,16 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, 
   );
 };
 
-const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void, currency: Currency, isLoggedIn: boolean }) => {
+const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?: 'per_night' | 'total', budgetValue?: number) => void, currency: Currency, isLoggedIn: boolean }) => {
   const [activeTab, setActiveTab] = useState<'search' | 'quiz'>('search');
   const [isExpanded, setIsExpanded] = useState(false);
-  const [foodOption, setFoodOption] = useState('Breakfast');
+  const [foodOption, setFoodOption] = useState('No meals');
   const [selectedEnv, setSelectedEnv] = useState<string[]>([]);
   const [smokingAllowed, setSmokingAllowed] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({ start: null, end: null });
+  const [budgetType, setBudgetType] = useState<'per_night' | 'total'>('per_night');
+  const [budgetValue, setBudgetValue] = useState<number | ''>('');
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -494,7 +569,7 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void
             AI-Powered Travel Intelligence
           </div>
           <h1 className="font-display text-7xl md:text-8xl font-bold text-white mb-6 tracking-tight leading-[0.9]">
-            {isLoggedIn ? "Where to next, Ivana?" : "Travel with Confidence."}
+            {isLoggedIn ? "Where to next, Ivana?" : "Travel with Confidence"}
           </h1>
           <p className="text-white/80 text-xl max-w-2xl mx-auto font-medium leading-relaxed">
             Move from analysis paralysis to booking confidence. Our AI synthesizes thousands of reviews to find your perfect stay.
@@ -523,7 +598,7 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void
                 className={`px-8 py-3 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'quiz' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
               >
                 <Sparkles className="w-4 h-4" />
-                Couple Quiz
+                Perfect Vacation Quiz
               </button>
             </div>
           </div>
@@ -537,8 +612,8 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="p-10 grid grid-cols-4 gap-8">
-                  <div className="col-span-2 space-y-3">
+                <div className="p-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                  <div className="lg:col-span-4 space-y-3">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Destination</label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -549,7 +624,7 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void
                       />
                     </div>
                   </div>
-                  <div className="space-y-3">
+                  <div className="lg:col-span-3 space-y-3">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Period</label>
                     <div 
                       onClick={() => setIsCalendarOpen(true)}
@@ -563,32 +638,50 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void
                       </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Budget</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
-                          {currency === 'EUR' ? '€' : '$'}
-                        </span>
-                        <input 
-                          type="number" 
-                          placeholder="Max" 
-                          className="w-full pl-10 pr-2 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-300"
-                        />
+                  <div className="lg:col-span-3 space-y-3">
+                    <div className="flex flex-wrap items-center gap-1.5 h-[24px]">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1 shrink-0">Budget</label>
+                      <div className="flex p-0.5 bg-slate-100 rounded-[6px]">
+                        <button 
+                          onClick={() => setBudgetType('per_night')}
+                          className={`px-2 py-1 rounded text-[9px] font-bold transition-all whitespace-nowrap ${budgetType === 'per_night' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+                        >
+                          Per night
+                        </button>
+                        <button 
+                          onClick={() => setBudgetType('total')}
+                          className={`px-2 py-1 rounded text-[9px] font-bold transition-all whitespace-nowrap ${budgetType === 'total' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+                        >
+                          Total
+                        </button>
                       </div>
                     </div>
-                    <div className="space-y-3">
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+                        {currency === 'EUR' ? '€' : '$'}
+                      </span>
+                      <input 
+                        type="number" 
+                        value={budgetValue}
+                        onChange={(e) => setBudgetValue(e.target.value ? Number(e.target.value) : '')}
+                        placeholder={budgetType === 'per_night' ? "Max / night" : "Max total"} 
+                        className="w-full pl-10 pr-2 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-300"
+                      />
+                    </div>
+                  </div>
+                  <div className="lg:col-span-2 space-y-3">
+                    <div className="flex items-center h-[24px]">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Travelers</label>
-                      <div className="relative">
-                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <select className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl appearance-none focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
-                          <option>4+</option>
-                        </select>
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                      </div>
+                    </div>
+                    <div className="relative">
+                      <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <select className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl appearance-none focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4+</option>
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                     </div>
                   </div>
                 </div>
@@ -648,11 +741,11 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void
                         <div className="space-y-6">
                           <h3 className="text-[10px] font-bold text-navy-900 uppercase tracking-[0.2em]">Meal Plans</h3>
                           <div className="flex p-1.5 bg-slate-100 rounded-2xl w-fit">
-                            {['Breakfast', 'Half Board', 'All Inclusive'].map(option => (
+                            {['No meals', 'Breakfast', 'Half Board', 'All Inclusive'].map(option => (
                               <button 
                                 key={option}
                                 onClick={() => setFoodOption(option)}
-                                className={`px-8 py-3 rounded-xl text-xs font-bold transition-all ${foodOption === option ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+                                className={`px-5 py-3 rounded-xl text-xs font-bold transition-all ${foodOption === option ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
                               >
                                 {option}
                               </button>
@@ -664,7 +757,7 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: () => void
                   </AnimatePresence>
 
                   <button 
-                    onClick={onSearch}
+                    onClick={() => onSearch(budgetType, budgetValue || undefined)}
                     className="w-full py-5 bg-navy-900 text-white rounded-[24px] font-display font-bold text-xl flex items-center justify-center gap-4 hover:bg-navy-800 transition-all group relative overflow-hidden shadow-2xl shadow-navy-900/30"
                   >
                     <div className="absolute inset-0 ai-sparkle opacity-0 group-hover:opacity-10 transition-opacity" />
@@ -764,6 +857,8 @@ const Shortlist = ({ onSelect, currency }: { onSelect: (p: Property) => void, cu
       <div className="grid grid-cols-3 gap-8">
         {MOCK_PROPERTIES.slice(0, visibleCount).map((property, idx) => {
           const bestOffer = property.offers.find(o => o.isBestDeal) || property.offers[0];
+          const maxPrice = Math.max(...property.offers.map(o => o.price));
+          const savings = maxPrice - bestOffer.price;
           
           return (
             <motion.div 
@@ -786,7 +881,7 @@ const Shortlist = ({ onSelect, currency }: { onSelect: (p: Property) => void, cu
                   <span className="text-sm font-bold text-navy-900">{property.rating}</span>
                 </div>
                 <div className="absolute bottom-4 left-4 bg-teal-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                  Best Deal: {bestOffer.otaName}
+                  Best Deal: {bestOffer.otaName}{savings > 0 ? ` · Save ${formatPrice(savings)}` : ''}
                 </div>
               </div>
               <div className="p-6 flex flex-col flex-grow">
@@ -854,9 +949,101 @@ const Shortlist = ({ onSelect, currency }: { onSelect: (p: Property) => void, cu
   );
 };
 
-const PropertyDetail = ({ property, onBack, currency }: { property: Property, onBack: () => void, currency: Currency }) => {
+const BookingModal = ({ 
+  onClose, 
+  isLoggedIn, 
+  otaName, 
+  link 
+}: { 
+  onClose: () => void; 
+  isLoggedIn: boolean; 
+  otaName: string; 
+  link: string; 
+}) => {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }} 
+        className="absolute inset-0 bg-navy-900/40 backdrop-blur-sm" 
+        onClick={onClose} 
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+        animate={{ opacity: 1, scale: 1, y: 0 }} 
+        exit={{ opacity: 0, scale: 0.95, y: 20 }} 
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden p-8 text-center"
+      >
+        <button 
+          onClick={onClose} 
+          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-navy-900 transition-colors rounded-full hover:bg-slate-100"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="w-12 h-12 bg-teal-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          {isLoggedIn ? (
+            <CheckCircle2 className="w-6 h-6 text-teal-500" />
+          ) : (
+            <Sparkles className="w-6 h-6 text-teal-500" />
+          )}
+        </div>
+
+        {isLoggedIn ? (
+          <>
+            <h3 className="font-display font-bold text-2xl text-navy-900 mb-3">
+              Redirecting to {otaName}
+            </h3>
+            <p className="text-slate-500 text-sm leading-relaxed mb-8">
+              We'll open their booking page. Your trip will be saved to My Trips automatically.
+            </p>
+            <a 
+              href={link} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={onClose}
+              className="w-full flex items-center justify-center px-6 py-3.5 bg-navy-900 text-white rounded-xl font-bold hover:bg-navy-800 transition-all font-display text-[15px] shadow-lg shadow-navy-900/20"
+            >
+              Continue &rarr;
+            </a>
+          </>
+        ) : (
+          <>
+            <h3 className="font-display font-bold text-2xl text-navy-900 mb-3">
+              Almost there!
+            </h3>
+            <p className="text-slate-500 text-sm leading-relaxed mb-8">
+              To complete your booking on {otaName}, you'll be redirected to their site. No Getaway account needed &mdash; but signing up lets you save trips, compare later, and sync with your partner.
+            </p>
+            <div className="space-y-3">
+              <a 
+                href={link} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                onClick={onClose}
+                className="w-full flex items-center justify-center px-6 py-3.5 bg-navy-900 text-white rounded-xl font-bold hover:bg-navy-800 transition-all font-display text-[15px] shadow-lg shadow-navy-900/20"
+              >
+                Continue to {otaName} &rarr;
+              </a>
+              <button 
+                onClick={onClose}
+                className="w-full flex items-center justify-center px-6 py-3.5 border border-slate-200 text-navy-900 rounded-xl font-bold hover:bg-slate-50 transition-all font-display text-[15px]"
+              >
+                Join Getaway first
+              </button>
+            </div>
+          </>
+        )}
+      </motion.div>
+    </div>
+  );
+};
+
+const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: Property, onBack: () => void, currency: Currency, isLoggedIn: boolean }) => {
   const [filters, setFilters] = useState<string[]>([]);
   const [visibleOffersCount, setVisibleOffersCount] = useState(3);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const formatPrice = (price: number) => {
     const converted = currency === 'USD' ? price * 1.08 : price;
@@ -869,6 +1056,33 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
 
   const bestOffer = property.offers.find(o => o.isBestDeal) || property.offers[0];
   const otherOffers = property.offers.filter(o => o !== bestOffer);
+  const maxPrice = Math.max(...property.offers.map(o => o.price));
+  const savings = maxPrice - bestOffer.price;
+
+  const mockCars = [
+    { name: 'Tesla Model Y', category: 'SUV · Electric', pricePerDay: 85 },
+    { name: 'VW Golf', category: 'Compact · Petrol', pricePerDay: 42 },
+    { name: 'BMW 3 Series', category: 'Sedan · Diesel', pricePerDay: 68 }
+  ];
+
+  const platformFiltersList = ['Booking.com', 'Airbnb', 'Expedia', 'Agoda', 'Hotels.com'];
+  const activePlatforms = filters.filter(f => platformFiltersList.includes(f));
+  const activeConditions = filters.filter(f => !platformFiltersList.includes(f) && f !== 'Lowest price');
+  const isLowestPrice = filters.includes('Lowest price');
+
+  let processedOffers = property.offers.filter(offer => {
+    if (activePlatforms.length > 0 && !activePlatforms.includes(offer.otaName)) {
+      return false;
+    }
+    if (activeConditions.length > 0 && !activeConditions.every(c => offer.conditions.includes(c))) {
+      return false;
+    }
+    return true;
+  });
+
+  if (isLowestPrice) {
+    processedOffers = [...processedOffers].sort((a, b) => a.price - b.price);
+  }
 
   const toggleFilter = (filter: string) => {
     setFilters(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
@@ -1083,28 +1297,59 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
           </section>
 
           {/* Detailed Price Comparison */}
-          <section id="prices" className="space-y-8">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-3xl font-bold text-navy-900">Compare All Deals</h2>
-              <div className="flex flex-wrap gap-2">
-                {['Breakfast included', 'Free cancellation'].map(filter => (
-                  <button 
-                    key={filter}
-                    onClick={() => toggleFilter(filter)}
-                    className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
-                      filters.includes(filter) 
-                        ? 'bg-navy-900 border-navy-900 text-white' 
-                        : 'bg-white border-slate-200 text-slate-500'
-                    }`}
-                  >
-                    {filter}
-                  </button>
-                ))}
+          <section id="prices" className="space-y-6">
+            <div>
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-3xl font-bold text-navy-900">Compare All Deals</h2>
               </div>
+              {savings > 0 && (
+                <p className="text-teal-600 font-bold mt-2 text-sm flex items-center gap-1.5">
+                  💰 Best deal saves you {formatPrice(savings)} vs highest listed price
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button 
+                onClick={() => toggleFilter('Lowest price')}
+                className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                  filters.includes('Lowest price') 
+                    ? 'bg-navy-900 border-navy-900 text-white' 
+                    : 'bg-white border-slate-200 text-slate-500'
+                }`}
+              >
+                Lowest price
+              </button>
+              {['Booking.com', 'Airbnb', 'Expedia', 'Agoda', 'Hotels.com'].map(filter => (
+                <button 
+                  key={filter}
+                  onClick={() => toggleFilter(filter)}
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                    filters.includes(filter) 
+                      ? 'bg-navy-900 border-navy-900 text-white' 
+                      : 'bg-white border-slate-200 text-slate-500'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+              {['Breakfast included', 'Free cancellation'].map(filter => (
+                <button 
+                  key={filter}
+                  onClick={() => toggleFilter(filter)}
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                    filters.includes(filter) 
+                      ? 'bg-navy-900 border-navy-900 text-white' 
+                      : 'bg-white border-slate-200 text-slate-500'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
             </div>
 
             <div className="space-y-3">
-              {property.offers.slice(0, visibleOffersCount).map((offer, i) => (
+              {processedOffers.slice(0, visibleOffersCount).map((offer, i) => (
                 <div 
                   key={i} 
                   className={`bg-white border rounded-2xl p-6 flex items-center justify-between transition-all ${
@@ -1155,7 +1400,7 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
               ))}
             </div>
 
-            {visibleOffersCount < property.offers.length && (
+            {visibleOffersCount < processedOffers.length && (
               <div className="flex justify-center pt-4">
                 <button 
                   onClick={loadMoreOffers}
@@ -1166,6 +1411,31 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
                 </button>
               </div>
             )}
+          </section>
+
+          {/* Rent a Car */}
+          <section id="rent-a-car" className="space-y-6 pt-6">
+            <div className="flex items-center gap-3">
+              <Car className="w-8 h-8 text-navy-900" />
+              <h2 className="font-display text-3xl font-bold text-navy-900">Rent a Car</h2>
+            </div>
+            <div className="flex overflow-x-auto gap-4 pb-2 snap-x">
+              {mockCars.map((car, i) => (
+                <div key={i} className="min-w-[220px] bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col snap-start">
+                  <h3 className="font-bold text-navy-900 mb-1">{car.name}</h3>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4">{car.category}</span>
+                  <div className="mt-auto flex items-center justify-between">
+                    <span className="text-teal-600 font-bold">{formatPrice(car.pricePerDay)}/day</span>
+                    <button className="border border-slate-200 text-navy-900 rounded-xl px-4 py-2 text-xs font-bold hover:bg-slate-50 transition-colors">
+                      Quick-Add
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button className="flex items-center shrink-0 px-4 text-sm font-bold text-slate-400 hover:text-navy-900 transition-colors">
+                View all cars &rarr;
+              </button>
+            </div>
           </section>
 
           {/* Guest Reviews */}
@@ -1288,7 +1558,10 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
                 ))}
               </div>
 
-              <button className="w-full py-4 bg-navy-900 text-white rounded-2xl font-display font-bold text-lg hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/20">
+              <button 
+                onClick={() => setIsBookingModalOpen(true)}
+                className="w-full py-4 bg-navy-900 text-white rounded-2xl font-display font-bold text-lg hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/20"
+              >
                 Book on {bestOffer.otaName}
               </button>
 
@@ -1352,6 +1625,45 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {isBookingModalOpen && (
+          <BookingModal 
+            onClose={() => setIsBookingModalOpen(false)} 
+            isLoggedIn={isLoggedIn}
+            otaName={bestOffer.otaName}
+            link={bestOffer.link}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const Settings = ({ onBack }: { onBack: () => void }) => {
+  return (
+    <div className="min-h-screen pt-24 pb-20 px-8 max-w-7xl mx-auto">
+      <button 
+        onClick={onBack}
+        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-navy-900 transition-colors mb-8"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Search
+      </button>
+
+      <h1 className="font-display text-4xl font-bold text-navy-900 mb-8">Account Settings</h1>
+
+      <div className="space-y-6">
+        <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+          <h2 className="text-xl font-bold text-navy-900">Profile & Preferences</h2>
+        </div>
+        <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+          <h2 className="text-xl font-bold text-navy-900">Travel History</h2>
+        </div>
+        <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+          <h2 className="text-xl font-bold text-navy-900">Notifications</h2>
+        </div>
+      </div>
     </div>
   );
 };
@@ -1359,10 +1671,10 @@ const PropertyDetail = ({ property, onBack, currency }: { property: Property, on
 // --- Main App ---
 
 export default function App() {
-  const [screen, setScreen] = useState<'search' | 'shortlist' | 'detail'>('search');
+  const [screen, setScreen] = useState<'search' | 'shortlist' | 'detail' | 'settings'>('search');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [currency, setCurrency] = useState<Currency>('EUR');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Default to true based on user flow
 
   const handleSearch = () => {
     setScreen('shortlist');
@@ -1382,9 +1694,21 @@ export default function App() {
     setSelectedProperty(null);
   };
 
+  const handleSignOut = () => {
+    setIsLoggedIn(false);
+    setScreen('search');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-teal-100 selection:text-teal-900">
-      <Navbar onHome={handleHome} currency={currency} setCurrency={setCurrency} isLoggedIn={isLoggedIn} />
+      <Navbar 
+        onHome={handleHome} 
+        currency={currency} 
+        setCurrency={setCurrency} 
+        isLoggedIn={isLoggedIn} 
+        onSignOut={handleSignOut}
+        onNavigateSettings={() => setScreen('settings')}
+      />
       
       <main>
         <AnimatePresence mode="wait">
@@ -1424,7 +1748,19 @@ export default function App() {
                 property={selectedProperty} 
                 onBack={handleBackToShortlist} 
                 currency={currency}
+                isLoggedIn={isLoggedIn}
               />
+            </motion.div>
+          )}
+          {screen === 'settings' && (
+            <motion.div
+              key="settings"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Settings onBack={() => setScreen('search')} />
             </motion.div>
           )}
         </AnimatePresence>
