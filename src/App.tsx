@@ -471,7 +471,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               <h2 className="text-3xl font-display font-bold text-navy-900">
                 {isLoggedIn ? "Ready, Ivana — here are your matches" : "Your profile is ready"}
               </h2>
-              <p className="text-slate-500">We've synthesized your preferences into a custom travel profile.</p>
+              <p className="text-slate-500">We've translated your preferences into a custom travel profile.</p>
             </div>
 
             <div className="w-full max-w-md bg-slate-50 rounded-3xl p-8 border border-slate-100 text-left space-y-6">
@@ -575,7 +575,7 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetTyp
             {isLoggedIn ? "Where to next, Ivana?" : "Travel with Confidence"}
           </h1>
           <p className="text-white/80 text-xl max-w-2xl mx-auto font-medium leading-relaxed">
-            Move from analysis paralysis to booking confidence. Our AI synthesizes thousands of reviews to find your perfect stay.
+            Move from analysis paralysis to booking confidence. Our AI analyzes thousands of reviews to find your perfect stay.
           </p>
         </motion.div>
 
@@ -801,7 +801,7 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetTyp
               <div className="w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-action-blue" />
               </div>
-              <h3 className="font-display font-bold text-2xl text-navy-900">Smart Synthesis</h3>
+              <h3 className="font-display font-bold text-2xl text-navy-900">Smart Analysis</h3>
               <p className="text-slate-500 leading-relaxed">Get the "vibe" of a place in seconds. We summarize the pros and cons so you don't have to.</p>
             </div>
             <div className="space-y-4">
@@ -852,8 +852,8 @@ const Shortlist = ({ onSelect, currency }: { onSelect: (p: Property) => void, cu
           <Sparkles className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h2 className="font-display font-bold text-navy-900 text-lg">AI Synthesis Complete</h2>
-          <p className="text-teal-800/80">Synthesized 1,000+ reviews from Booking, Airbnb, and Expedia into your best matches.</p>
+          <h2 className="font-display font-bold text-navy-900 text-lg">AI Analysis Complete</h2>
+          <p className="text-teal-800/80">Analyzed 1,000+ reviews from Booking, Airbnb, and Expedia into your best matches.</p>
         </div>
       </motion.div>
 
@@ -903,8 +903,11 @@ const Shortlist = ({ onSelect, currency }: { onSelect: (p: Property) => void, cu
                     </div>
                     <span className="text-xs font-bold text-teal-600 uppercase tracking-wider">AI Insight</span>
                   </div>
-                  <p className="text-sm text-slate-600 leading-relaxed">
+                  <p className="text-sm text-slate-600 leading-relaxed mb-2">
                     <span className="font-bold text-navy-900">{property.quietScore} Quiet Score.</span> {property.aiInsight}
+                  </p>
+                  <p className="text-xs text-slate-400 font-medium">
+                    Based on {property.reviewSources.reduce((acc, src) => acc + src.reviewCount, 0)}+ reviews from {property.reviewSources.map(s => s.platform).join(', ')}
                   </p>
                 </div>
 
@@ -1186,7 +1189,7 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
             </div>
           </section>
 
-          {/* AI Synthesis & Trust Dashboard */}
+          {/* AI Analysis & Trust Dashboard */}
           <section className="space-y-8">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-3xl font-bold text-navy-900">AI Trust Dashboard</h2>
@@ -1200,7 +1203,7 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
               <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
                 <h3 className="font-bold text-navy-900 flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-teal-500" />
-                  Review Synthesis
+                  Review Analysis
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -1270,11 +1273,11 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
               </div>
             </div>
 
-            {/* Platform Ratings Synthesis */}
+            {/* Platform Ratings Analysis */}
             <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
               <h3 className="font-bold text-navy-900 mb-6 flex items-center gap-2">
                 <MapIcon className="w-5 h-5 text-action-blue" />
-                Cross-Platform Rating Synthesis
+                Cross-Platform Rating Analysis
               </h3>
               <div className="grid grid-cols-4 gap-6">
                 {property.reviewSources.map((source, idx) => (
@@ -1568,13 +1571,22 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
                 Book on {bestOffer.otaName}
               </button>
 
-              <div className="pt-6 border-t border-slate-100 space-y-4">
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Other Options</h4>
+              <div className="pt-6 border-t border-slate-100 space-y-2">
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Other Options</h4>
                 {otherOffers.slice(0, 3).map((offer, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600 font-medium">{offer.otaName}</span>
-                    <span className="font-bold text-navy-900">{formatPrice(offer.price)}</span>
-                  </div>
+                  <button 
+                    key={i} 
+                    onClick={() => setIsBookingModalOpen(true)}
+                    className="w-full flex items-center justify-between text-sm p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                  >
+                    <span className="text-slate-600 font-medium group-hover:text-navy-900 transition-colors">{offer.otaName}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-navy-900 group-hover:text-teal-600 transition-colors">{formatPrice(offer.price)}</span>
+                      <svg className="w-4 h-4 text-slate-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </button>
                 ))}
               </div>
 
@@ -1892,31 +1904,104 @@ const Settings = ({ onBack }: { onBack: () => void }) => {
 };
 
 const Registration = ({ onLogin, onBack }: { onLogin: () => void, onBack: () => void }) => {
+  const [isLogin, setIsLogin] = useState(false);
+
   return (
     <div className="min-h-screen pt-24 pb-20 px-8 flex items-center justify-center relative bg-slate-50">
       <button onClick={onBack} className="absolute top-24 left-8 flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-navy-900 transition-colors">
         <ArrowLeft className="w-4 h-4" /> 
         Back to Search
       </button>
-      <div className="bg-white rounded-[40px] shadow-2xl shadow-navy-900/10 border border-slate-100 p-12 max-w-md w-full text-center">
-        <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-navy-900/20">
-          <Sparkles className="w-8 h-8 text-teal-400" />
-        </div>
-        <h2 className="font-display text-3xl font-bold text-navy-900 mb-4">Create your account</h2>
-        <p className="text-slate-500 mb-8 font-medium text-sm">Save your preferences, compare properties, and unlock personalized AI searches.</p>
+      <div className="bg-white rounded-[40px] shadow-2xl shadow-navy-900/10 border border-slate-100 p-10 max-w-[440px] w-full relative overflow-hidden">
+        {/* Decorative background element */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-teal-50 rounded-full blur-3xl opacity-60"></div>
         
-        <button 
-          onClick={onLogin}
-          className="w-full py-4 px-6 bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-50 transition-colors mb-4 group"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          <span className="font-bold text-slate-700">Continue with Google</span>
-        </button>
+        <div className="relative z-10 text-center mb-8">
+          <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-navy-900/20">
+            <Sparkles className="w-8 h-8 text-teal-400" />
+          </div>
+          <h2 className="font-display text-3xl font-bold text-navy-900 mb-3">{isLogin ? 'Welcome back' : 'Create your account'}</h2>
+          <p className="text-slate-500 font-medium text-sm px-4">
+            {isLogin ? 'Log in to access your saved trips and personalized searches.' : 'Save your preferences, compare properties, and unlock personalized AI searches.'}
+          </p>
+        </div>
+
+        <form className="relative z-10 space-y-4 mb-6" onSubmit={(e) => { e.preventDefault(); onLogin(); }}>
+          {!isLogin && (
+            <div>
+              <label className="sr-only">Full Name</label>
+              <input 
+                type="text" 
+                placeholder="Full Name" 
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all placeholder:text-slate-400 font-medium text-navy-900"
+              />
+            </div>
+          )}
+          <div>
+            <label className="sr-only">Email Address</label>
+            <input 
+              type="email" 
+              placeholder="Email Address" 
+              className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all placeholder:text-slate-400 font-medium text-navy-900"
+            />
+          </div>
+          <div>
+            <label className="sr-only">Password</label>
+            <input 
+              type="password" 
+              placeholder="Password" 
+              className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all placeholder:text-slate-400 font-medium text-navy-900"
+            />
+          </div>
+          <button 
+            type="submit"
+            className="w-full py-4 px-6 bg-navy-900 text-white rounded-2xl font-bold hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/20 active:scale-[0.98]"
+          >
+            {isLogin ? 'Log In' : 'Sign Up'}
+          </button>
+        </form>
+
+        <div className="relative z-10 flex items-center gap-4 mb-6">
+          <div className="h-px bg-slate-200 flex-1"></div>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Or continue with</span>
+          <div className="h-px bg-slate-200 flex-1"></div>
+        </div>
+        
+        <div className="relative z-10 grid grid-cols-2 gap-3 mb-6">
+          <button 
+            onClick={onLogin}
+            type="button"
+            className="py-3 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors group"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span className="font-semibold text-sm text-slate-700">Google</span>
+          </button>
+          <button 
+            onClick={onLogin}
+            type="button"
+            className="py-3 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors group"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.253 3.513 7.59 9.053 7.31c1.35.07 2.33.68 3.12.68.73 0 1.94-.74 3.48-.62 1.4.11 2.56.65 3.33 1.77-2.91 1.63-2.4 5.76.54 6.94-1.07 2.72-2.48 4.24-2.47 4.2zm-4.75-20.2c-1.32.06-2.82.88-3.78 1.98-.82.95-1.52 2.38-1.28 3.74 1.48.16 2.8-.75 3.73-1.87.8-1 1.48-2.4 1.33-3.85z"/>
+            </svg>
+            <span className="font-semibold text-sm text-slate-700">Apple</span>
+          </button>
+        </div>
+
+        <p className="relative z-10 text-center text-sm text-slate-500 font-medium">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+          <button 
+            onClick={() => setIsLogin(!isLogin)} 
+            className="text-teal-600 font-bold hover:text-teal-700 transition-colors"
+          >
+            {isLogin ? 'Sign up' : 'Log in'}
+          </button>
+        </p>
       </div>
     </div>
   );
@@ -1925,25 +2010,183 @@ const Registration = ({ onLogin, onBack }: { onLogin: () => void, onBack: () => 
 const Promo = ({ onContinue }: { onContinue: () => void }) => {
   return (
     <div className="min-h-screen pt-24 pb-20 px-8 flex items-center justify-center relative bg-slate-50">
-      <div className="bg-white rounded-[40px] shadow-2xl shadow-navy-900/10 border border-slate-100 overflow-hidden max-w-lg w-full text-center">
-        <div className="bg-teal-50 px-12 py-10 border-b border-teal-100">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-100 text-teal-800 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-            <Sparkles className="w-4 h-4" />
-            Special Offer
+      <div className="absolute inset-0 bg-gradient-to-b from-teal-50/50 to-slate-50"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-100 rounded-full blur-[120px] opacity-20"></div>
+
+      <div className="bg-white rounded-[40px] shadow-2xl shadow-navy-900/10 border border-slate-100 overflow-hidden max-w-[520px] w-full text-center relative z-10">
+        <div className="bg-gradient-to-br from-amber-50 to-orange-50/30 px-12 pt-12 pb-10 border-b border-amber-100 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-200/50 rounded-full blur-2xl"></div>
+          
+          <div className="w-20 h-20 bg-white rounded-3xl shadow-xl shadow-amber-500/10 flex items-center justify-center mx-auto mb-6 relative">
+            <div className="absolute inset-0 border border-amber-100 rounded-3xl"></div>
+            <Sparkles className="w-10 h-10 text-amber-500" />
+            
+            <motion.div 
+              className="absolute -right-3 -top-3 w-8 h-8 bg-red-500 rounded-full text-white flex items-center justify-center font-bold text-sm shadow-md"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', bounce: 0.6, delay: 0.3 }}
+            >
+              1
+            </motion.div>
           </div>
-          <h2 className="font-display text-4xl font-bold text-navy-900 mb-2">Your First Trip is Free!</h2>
+
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-100 text-amber-800 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm border border-amber-200/50">
+            <Sparkles className="w-3 h-3" />
+            Welcome Gift
+          </div>
+          <h2 className="font-display text-[2.5rem] leading-tight font-bold text-navy-900 mb-2">Claim your free<br/>AI trip plan!</h2>
         </div>
-        <div className="p-10">
-          <p className="text-slate-600 mb-8 font-medium text-lg leading-relaxed">
-            Our AI crafts highly personalized itineraries and finds the absolute best deals. Normally, each planned trip costs <strong className="text-navy-900">€4.99</strong>, but your first one is on us as a welcome gift.
-          </p>
-          <button 
+        
+        <div className="p-10 relative">
+          <div className="absolute top-0 right-0 p-8 opacity-5">
+            <Sparkles className="w-32 h-32 text-navy-900" />
+          </div>
+
+          <div className="text-left space-y-6 mb-10 relative z-10">
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center flex-shrink-0 mt-1">
+                <CheckCircle2 className="w-5 h-5 text-teal-600" />
+              </div>
+              <div>
+                <h4 className="font-bold text-navy-900 mb-1">Normally €4.99 per search</h4>
+                <p className="text-sm text-slate-500 font-medium">We usually charge a fee to run our heavy AI analysis across thousands of properties.</p>
+              </div>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center flex-shrink-0 mt-1">
+                <CheckCircle2 className="w-5 h-5 text-teal-600" />
+              </div>
+              <div>
+                <h4 className="font-bold text-navy-900 mb-1">Your first one is on us</h4>
+                <p className="text-sm text-slate-500 font-medium">To say thanks for joining us, we're giving you one complete, personalized analysis totally free.</p>
+              </div>
+            </div>
+          </div>
+
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={onContinue}
-            className="w-full py-4 px-6 bg-navy-900 text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-navy-800 transition-all font-bold text-lg group shadow-xl shadow-navy-900/20"
+            className="w-full py-4 px-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl flex items-center justify-center gap-3 hover:from-amber-400 hover:to-orange-400 transition-all font-bold text-lg group shadow-xl shadow-amber-500/20 relative overflow-hidden"
           >
-            See My Free Search Results
-            <ArrowLeft className="w-5 h-5 rotate-180 transform group-hover:translate-x-1 transition-transform" />
-          </button>
+            <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+            <span className="relative z-10">Redeem Free Search</span>
+            <ArrowLeft className="w-5 h-5 rotate-180 transform group-hover:translate-x-1 transition-transform relative z-10" />
+          </motion.button>
+          
+          <p className="text-xs text-slate-400 font-medium mt-6">No credit card required. No hidden fees.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
+  const [progress, setProgress] = useState(0);
+  const [currentPlatformIndex, setCurrentPlatformIndex] = useState(0);
+  const platforms = ['Booking.com', 'Airbnb', 'Expedia', 'Vrbo', 'Agoda', 'Hotels.com', 'TripAdvisor', 'Trivago'];
+  const [propertiesAnalyzed, setPropertiesAnalyzed] = useState(0);
+
+  useEffect(() => {
+    const duration = 4000;
+    const interval = 30;
+    const steps = duration / interval;
+    let currentStep = 0;
+
+    const timer = setInterval(() => {
+      currentStep++;
+      const currentProgress = (currentStep / steps) * 100;
+      setProgress(currentProgress);
+      
+      // Easing function for numbers to look like more intensive scanning towards the end
+      const easeInQuad = (t: number) => t * t;
+      setPropertiesAnalyzed(Math.floor(easeInQuad(currentStep / steps) * 3429));
+      
+      if (currentStep % Math.floor(steps / platforms.length) === 0) {
+        setCurrentPlatformIndex(prev => (prev + 1) % platforms.length);
+      }
+
+      if (currentStep >= steps) {
+        clearInterval(timer);
+        setTimeout(onComplete, 400);
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [onComplete]);
+
+  return (
+    <div className="min-h-screen pt-24 pb-20 px-8 flex items-center justify-center relative bg-slate-50 overflow-hidden">
+      {/* Decorative ambient background */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-100 rounded-full blur-[100px] opacity-40"></div>
+      <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] bg-navy-100 rounded-full blur-[80px] opacity-30"></div>
+
+      <div className="bg-white/80 backdrop-blur-xl rounded-[40px] shadow-2xl shadow-navy-900/10 border border-white p-12 max-w-[500px] w-full text-center relative z-10">
+        
+        {/* Animated Scanner Ring */}
+        <div className="relative w-24 h-24 mx-auto mb-10">
+          <div className="absolute inset-0 bg-teal-50 rounded-3xl rotate-12 scale-105"></div>
+          <div className="absolute inset-0 bg-navy-50 rounded-3xl -rotate-6"></div>
+          <motion.div 
+            animate={{ rotate: 360 }} 
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 border-[3px] border-transparent border-t-teal-500 border-r-teal-500 rounded-3xl"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-white rounded-3xl shadow-sm border border-slate-100">
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Sparkles className="w-8 h-8 text-teal-600" />
+            </motion.div>
+          </div>
+        </div>
+        
+        <h2 className="font-display text-3xl font-bold text-navy-900 mb-3 tracking-tight">Curating your stays</h2>
+        <div className="h-8 flex items-center justify-center overflow-hidden mb-8 relative">
+          <AnimatePresence mode="popLayout">
+            <motion.p 
+               key={platforms[currentPlatformIndex]}
+               initial={{ y: 20, opacity: 0 }}
+               animate={{ y: 0, opacity: 1 }}
+               exit={{ y: -20, opacity: 0 }}
+               transition={{ duration: 0.3 }}
+               className="text-slate-500 font-medium absolute"
+            >
+              Scanning <strong className="text-navy-900">{platforms[currentPlatformIndex]}</strong>
+            </motion.p>
+          </AnimatePresence>
+        </div>
+        
+        {/* Progress Display */}
+        <div className="bg-white rounded-2xl p-6 mb-8 border border-slate-100 shadow-sm relative overflow-hidden">
+          <motion.div
+            className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 skew-x-12"
+            animate={{ left: ['-100%', '200%'] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          />
+          <div className="flex justify-between items-end mb-3 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></div>
+              <span className="text-slate-500 font-medium tracking-wide">ANALYZING</span>
+            </div>
+            <span className="font-bold text-navy-900 text-lg tabular-nums">{propertiesAnalyzed.toLocaleString()} <span className="text-sm text-slate-400 font-medium">properties</span></span>
+          </div>
+          <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-teal-400 to-teal-500 rounded-full relative"
+              initial={{ width: "0%" }}
+              animate={{ width: `${progress}%` }}
+              transition={{ ease: "linear", duration: 0.05 }} // Match interval
+            >
+               <motion.div 
+                 className="absolute top-0 right-0 bottom-0 w-8 bg-white/30 blur-[2px]"
+                 animate={{ x: [-20, 20] }}
+                 transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut', repeatType: 'reverse' }}
+               />
+            </motion.div>
+          </div>
         </div>
       </div>
     </div>
@@ -1953,7 +2196,7 @@ const Promo = ({ onContinue }: { onContinue: () => void }) => {
 // --- Main App ---
 
 export default function App() {
-  const [screen, setScreen] = useState<'search' | 'shortlist' | 'detail' | 'settings' | 'trips' | 'registration' | 'promo'>('search');
+  const [screen, setScreen] = useState<'search' | 'analyzing' | 'shortlist' | 'detail' | 'settings' | 'trips' | 'registration' | 'promo'>('search');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Default to false to show registration flow
@@ -1962,8 +2205,12 @@ export default function App() {
     if (!isLoggedIn) {
       setScreen('registration');
     } else {
-      setScreen('shortlist');
+      setScreen('promo');
     }
+  };
+
+  const handleAnalysisComplete = () => {
+    setScreen('shortlist');
   };
 
   const handleLogin = () => {
@@ -1972,7 +2219,7 @@ export default function App() {
   };
 
   const handlePromoContinue = () => {
-    setScreen('shortlist');
+    setScreen('analyzing');
   };
 
   const handleSelectProperty = (p: Property) => {
@@ -2076,6 +2323,17 @@ export default function App() {
               transition={{ duration: 0.3 }}
             >
               <MyTrips onHome={() => setScreen('search')} onViewDetails={handleViewDetailsFromTrips} currency={currency} />
+            </motion.div>
+          )}
+          {screen === 'analyzing' && (
+            <motion.div
+              key="analyzing"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Analyzing onComplete={handleAnalysisComplete} />
             </motion.div>
           )}
           {screen === 'registration' && (

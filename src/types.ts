@@ -56,7 +56,7 @@ export const MOCK_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800&sig=2',
       'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=800&sig=3',
     ],
-    aiInsight: 'Perfect for deep relaxation. Synthesized reviews highlight the soundproof walls and private terrace.',
+    aiInsight: 'Perfect for deep relaxation. Reviews highlight the soundproof walls and private terrace.',
     pros: [
       'Exceptional soundproofing',
       'Private infinity pool',
