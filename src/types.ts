@@ -151,15 +151,15 @@ export const MOCK_PROPERTIES: Property[] = [
     priceTotal: 1560,
     rating: 5.0,
     quietScore: 9.8,
-    image: 'https://images.unsplash.com/photo-1449156001935-d2863fb72690?auto=format&fit=crop&q=80&w=1000',
+    image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=1000',
     gallery: [
-      'https://images.unsplash.com/photo-1449156001935-d2863fb72690?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=800',
       'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800',
       'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&q=80&w=800',
       'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800',
     ],
     guestPhotos: [
-      'https://images.unsplash.com/photo-1449156001935-d2863fb72690?auto=format&fit=crop&q=80&w=800&sig=6',
+      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=800&sig=6',
       'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800&sig=7',
     ],
     aiInsight: 'Unmatched privacy. AI analysis of 500+ photos confirms no neighboring properties within 1km.',
@@ -225,7 +225,12 @@ export const MOCK_PROPERTIES: Property[] = [
       { platform: 'Expedia', rating: 4.4, reviewCount: 150 },
     ],
     reviews: [{ author: 'John D.', comment: 'Perfect for work and play.', rating: 5, source: 'Booking' }],
-    offers: [{ otaName: 'Booking.com', price: 850, conditions: ['Free cancellation'], isBestDeal: true, link: '#' }]
+    offers: [
+      { otaName: 'Booking.com', price: 850, conditions: ['Free cancellation'], isBestDeal: true, link: '#' },
+      { otaName: 'Airbnb', price: 880, conditions: ['Free cancellation'], link: '#' },
+      { otaName: 'Vrbo', price: 920, conditions: ['Entire home'], link: '#' },
+      { otaName: 'Expedia', price: 950, conditions: ['Free cancellation'], link: '#' }
+    ]
   },
   {
     id: '5',
@@ -253,7 +258,12 @@ export const MOCK_PROPERTIES: Property[] = [
       { platform: 'Booking', rating: 4.9, reviewCount: 310 },
     ],
     reviews: [{ author: 'Heidi S.', comment: 'Unbelievable views.', rating: 5, source: 'Expedia' }],
-    offers: [{ otaName: 'Expedia', price: 2100, conditions: ['Breakfast included'], isBestDeal: true, link: '#' }]
+    offers: [
+      { otaName: 'Expedia', price: 2100, conditions: ['Breakfast included'], isBestDeal: true, link: '#' },
+      { otaName: 'Booking.com', price: 2150, conditions: ['Breakfast included'], link: '#' },
+      { otaName: 'Hotels.com', price: 2200, conditions: ['Breakfast included'], link: '#' },
+      { otaName: 'Agoda', price: 2250, conditions: ['Pay at property'], link: '#' }
+    ]
   },
   {
     id: '6',
@@ -281,7 +291,12 @@ export const MOCK_PROPERTIES: Property[] = [
       { platform: 'Booking', rating: 4.5, reviewCount: 600 },
     ],
     reviews: [{ author: 'Kenji M.', comment: 'A peaceful retreat in the city.', rating: 4, source: 'Google' }],
-    offers: [{ otaName: 'Agoda', price: 720, conditions: ['Pay at property'], isBestDeal: true, link: '#' }]
+    offers: [
+      { otaName: 'Agoda', price: 720, conditions: ['Pay at property'], isBestDeal: true, link: '#' },
+      { otaName: 'Trip.com', price: 750, conditions: ['Instant confirmation'], link: '#' },
+      { otaName: 'Booking.com', price: 760, conditions: ['Free cancellation'], link: '#' },
+      { otaName: 'Expedia', price: 780, conditions: ['Free cancellation'], link: '#' }
+    ]
   },
   {
     id: '7',
@@ -309,7 +324,12 @@ export const MOCK_PROPERTIES: Property[] = [
       { platform: 'Google', rating: 4.9, reviewCount: 2200 },
     ],
     reviews: [{ author: 'Ahmed K.', comment: 'Pure luxury.', rating: 5, source: 'Booking' }],
-    offers: [{ otaName: 'Booking.com', price: 1800, conditions: ['All-inclusive'], isBestDeal: true, link: '#' }]
+    offers: [
+      { otaName: 'Booking.com', price: 1800, conditions: ['All-inclusive'], isBestDeal: true, link: '#' },
+      { otaName: 'Expedia', price: 1850, conditions: ['All-inclusive'], link: '#' },
+      { otaName: 'Priceline', price: 1880, conditions: ['Instant confirmation'], link: '#' },
+      { otaName: 'Hotels.com', price: 1900, conditions: ['All-inclusive'], link: '#' }
+    ]
   },
   {
     id: '8',
@@ -337,7 +357,12 @@ export const MOCK_PROPERTIES: Property[] = [
       { platform: 'Booking', rating: 4.9, reviewCount: 150 },
     ],
     reviews: [{ author: 'Chloe W.', comment: 'Paradise found.', rating: 5, source: 'Google' }],
-    offers: [{ otaName: 'Hotels.com', price: 2500, conditions: ['Free cancellation'], isBestDeal: true, link: '#' }]
+    offers: [
+      { otaName: 'Hotels.com', price: 2500, conditions: ['Free cancellation'], isBestDeal: true, link: '#' },
+      { otaName: 'Agoda', price: 2550, conditions: ['Free cancellation'], link: '#' },
+      { otaName: 'Booking.com', price: 2600, conditions: ['Breakfast included'], link: '#' },
+      { otaName: 'Expedia', price: 2650, conditions: ['Free cancellation'], link: '#' }
+    ]
   },
   {
     id: '9',
@@ -365,6 +390,11 @@ export const MOCK_PROPERTIES: Property[] = [
       { platform: 'Google', rating: 4.6, reviewCount: 300 },
     ],
     reviews: [{ author: 'Yuki S.', comment: 'Very peaceful and authentic.', rating: 5, source: 'Booking' }],
-    offers: [{ otaName: 'Booking.com', price: 1100, conditions: ['Half board'], isBestDeal: true, link: '#' }]
+    offers: [
+      { otaName: 'Booking.com', price: 1100, conditions: ['Half board'], isBestDeal: true, link: '#' },
+      { otaName: 'Airbnb', price: 1150, conditions: ['Entire ryokan'], link: '#' },
+      { otaName: 'Trip.com', price: 1180, conditions: ['Half board'], link: '#' },
+      { otaName: 'Expedia', price: 1200, conditions: ['Half board'], link: '#' }
+    ]
   }
 ];
