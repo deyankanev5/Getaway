@@ -383,11 +383,11 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
   const [isFinished, setIsFinished] = useState(false);
 
   const destinationOptions = [
-    { id: 'italy', image: 'https://images.unsplash.com/photo-1516483638261-f40889c28a5d?auto=format&fit=crop&q=80&w=400', label: 'Italy' },
+    { id: 'italy', image: 'https://images.unsplash.com/photo-1498307833015-e7b400441eb8?auto=format&fit=crop&q=80&w=400', label: 'Italy' },
     { id: 'japan', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=400', label: 'Japan' },
     { id: 'greece', image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80&w=400', label: 'Greece' },
-    { id: 'spain', image: 'https://images.unsplash.com/photo-1539037116-2a78ee4b4dc4?auto=format&fit=crop&q=80&w=400', label: 'Spain' },
-    { id: 'france', image: 'https://images.unsplash.com/photo-1502602881462-f2242811c38a?auto=format&fit=crop&q=80&w=400', label: 'France' },
+    { id: 'spain', image: 'https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&q=80&w=400', label: 'Spain' },
+    { id: 'france', image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=400', label: 'France' },
     { id: 'mexico', image: 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?auto=format&fit=crop&q=80&w=400', label: 'Mexico' }
   ];
 
