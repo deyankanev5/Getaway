@@ -25,7 +25,9 @@ import {
   ChevronRight,
   Share2,
   Heart,
-  Clock
+  Clock,
+  Copy,
+  Check
 } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, isWithinInterval, isBefore, startOfToday } from 'date-fns';
 import { MOCK_PROPERTIES, Property } from './types';
@@ -41,7 +43,7 @@ interface DateRange {
 
 // --- Components ---
 
-const Navbar = ({ onHome, currency, setCurrency, isLoggedIn, onSignOut, onNavigateSettings, onNavigateTrips }: { onHome: () => void, currency: Currency, setCurrency: (c: Currency) => void, isLoggedIn: boolean, onSignOut: () => void, onNavigateSettings: () => void, onNavigateTrips: () => void }) => {
+const Navbar = ({ onHome, currency, setCurrency, isLoggedIn, onSignOut, onNavigateSettings, onNavigateTrips, onNavigateReferral }: { onHome: () => void, currency: Currency, setCurrency: (c: Currency) => void, isLoggedIn: boolean, onSignOut: () => void, onNavigateSettings: () => void, onNavigateTrips: () => void, onNavigateReferral: () => void }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
@@ -90,8 +92,20 @@ const Navbar = ({ onHome, currency, setCurrency, isLoggedIn, onSignOut, onNaviga
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-100 rounded-2xl shadow-xl py-2 z-50 flex flex-col"
+                  className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 flex flex-col py-2"
                 >
+                  <div className="px-4 py-3 flex flex-col gap-2 border-b border-slate-100 mb-2 bg-slate-50/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-navy-900 uppercase tracking-wider">Free Trips</span>
+                      <span className="text-xs font-bold text-teal-700 bg-teal-100 px-2 py-0.5 rounded-md">0</span>
+                    </div>
+                    <button 
+                      onClick={() => { setDropdownOpen(false); onNavigateReferral(); }}
+                      className="text-xs font-bold text-white bg-teal-500 hover:bg-teal-600 px-3 py-1.5 rounded-lg transition-colors text-center shadow-sm"
+                    >
+                      Get more free trips
+                    </button>
+                  </div>
                   <button 
                     onClick={() => { setDropdownOpen(false); onNavigateTrips(); }}
                     className="px-4 py-2 text-left text-sm font-medium text-slate-600 hover:text-navy-900 hover:bg-slate-50 transition-colors"
@@ -234,6 +248,114 @@ const CalendarModal = ({ isOpen, onClose, range, setRange }: { isOpen: boolean, 
         <div className="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
           <button onClick={() => setRange({ start: null, end: null })} className="text-sm font-bold text-navy-900 hover:underline">Clear</button>
           <button onClick={onClose} className="px-10 py-3 bg-navy-900 text-white rounded-full font-bold hover:bg-navy-800 transition-all">Update</button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const ReferralModal = ({ onClose }: { onClose: () => void }) => {
+  const [copied, setCopied] = useState(false);
+  const [socialLink, setSocialLink] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const referralLink = "https://getaway.ai/ref/ivana123";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSubmitSocial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (socialLink) {
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setSocialLink('');
+        onClose();
+      }, 2000);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-navy-900/60 backdrop-blur-sm" onClick={onClose} />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+        animate={{ opacity: 1, scale: 1, y: 0 }} 
+        exit={{ opacity: 0, scale: 0.95, y: 20 }} 
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
+      >
+        <div className="p-6 pb-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+          <div>
+            <h2 className="font-display font-bold text-navy-900 text-2xl">Get More Free Trips</h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">Unlock free stays by sharing the love.</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
+            <X className="w-5 h-5 text-slate-500" />
+          </button>
+        </div>
+
+        <div className="p-8 space-y-8 overflow-y-auto max-h-[70vh]">
+          {/* Refer a Friend */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
+                <Users className="w-5 h-5 text-teal-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-navy-900">Refer a Friend</h3>
+                <p className="text-xs text-slate-500 font-medium">Get 1 free trip when a friend registers using your link.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 truncate">
+                {referralLink}
+              </div>
+              <button 
+                onClick={handleCopy}
+                className="bg-navy-900 hover:bg-navy-800 text-white p-3 rounded-xl transition-colors flex shrink-0 items-center justify-center"
+              >
+                {copied ? <Check className="w-5 h-5 text-teal-400" /> : <Copy className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="h-px bg-slate-100 w-full" />
+
+          {/* Social Media */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+                <Share2 className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-navy-900">Social Media Testimonial</h3>
+                <p className="text-xs text-slate-500 font-medium">Tag us on IG, TikTok, or FB and submit the link for 2 free trips.</p>
+              </div>
+            </div>
+            <form onSubmit={handleSubmitSocial} className="space-y-3">
+              <input 
+                type="url" 
+                placeholder="Paste your post URL here (e.g., https://instagram.com/p/...)" 
+                required
+                value={socialLink}
+                onChange={(e) => setSocialLink(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-sm text-navy-900 placeholder:text-slate-400"
+              />
+              <button 
+                type="submit"
+                disabled={!socialLink || submitted}
+                className={`w-full py-3 rounded-xl font-bold transition-all ${
+                  submitted ? 'bg-teal-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                }`}
+              >
+                {submitted ? 'Submitted!' : 'Submit Link'}
+              </button>
+            </form>
+          </div>
         </div>
       </motion.div>
     </div>
@@ -1039,7 +1161,7 @@ const Shortlist = ({ onSelect, currency }: { onSelect: (p: Property) => void, cu
         </div>
         <div>
           <h2 className="font-display font-bold text-navy-900 text-lg">AI Analysis Complete</h2>
-          <p className="text-teal-800/80">Analyzed 1,000+ reviews from Booking, Airbnb, and Expedia into your best matches.</p>
+          <p className="text-teal-800/80">Analyzed 1,000+ reviews from Booking, Vrbo, and Expedia into your best matches.</p>
         </div>
       </motion.div>
 
@@ -1257,7 +1379,7 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
     { name: 'BMW 3 Series', category: 'Sedan · Diesel', pricePerDay: 68 }
   ];
 
-  const platformFiltersList = ['Booking.com', 'Airbnb', 'Expedia', 'Agoda', 'Hotels.com'];
+  const platformFiltersList = ['Booking.com', 'Vrbo', 'Expedia', 'Agoda', 'Hotels.com'];
   const activePlatforms = filters.filter(f => platformFiltersList.includes(f));
   const activeConditions = filters.filter(f => !platformFiltersList.includes(f) && f !== 'Lowest price');
   const isLowestPrice = filters.includes('Lowest price');
@@ -1359,7 +1481,7 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
                 const platforms = [
                   { label: 'B', color: 'bg-blue-600' },
                   { label: 'G', color: 'bg-red-600' },
-                  { label: 'A', color: 'bg-[#FF5A5F]' }
+                  { label: 'T', color: 'bg-green-600' }
                 ];
                 const platform = platforms[i % platforms.length];
                 
@@ -1512,7 +1634,7 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
               >
                 Lowest price
               </button>
-              {['Booking.com', 'Airbnb', 'Expedia', 'Agoda', 'Hotels.com'].map(filter => (
+              {['Booking.com', 'Vrbo', 'Expedia', 'Agoda', 'Hotels.com'].map(filter => (
                 <button 
                   key={filter}
                   onClick={() => toggleFilter(filter)}
@@ -1647,7 +1769,7 @@ const PropertyDetail = ({ property, onBack, currency, isLoggedIn }: { property: 
                   {property.reviewSources.map((source, idx) => {
                     const colors: Record<string, string> = {
                       'Booking': 'bg-blue-50 text-blue-600 border-blue-100',
-                      'Airbnb': 'bg-rose-50 text-rose-600 border-rose-100',
+                      'Vrbo': 'bg-rose-50 text-rose-600 border-rose-100',
                       'Google': 'bg-slate-50 text-slate-600 border-slate-100',
                       'Expedia': 'bg-amber-50 text-amber-600 border-amber-100'
                     };
@@ -1871,7 +1993,7 @@ const MOCK_TRIPS: Trip[] = [
     location: 'Tuscany, Italy',
     dates: 'Aug 3 – Aug 10, 2026',
     nights: 7,
-    platform: 'Airbnb',
+    platform: 'Vrbo',
     totalPrice: 980,
     status: 'pending',
     image: 'https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&q=80&w=800'
@@ -1990,7 +2112,7 @@ const MyTrips = ({ onHome, onViewDetails, currency }: { onHome: () => void, onVi
                     <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg text-xs font-medium text-slate-600 border border-slate-100">
                       <span className={`w-2 h-2 rounded-full ${
                         trip.platform === 'Booking.com' ? 'bg-blue-500' :
-                        trip.platform === 'Airbnb' ? 'bg-red-500' :
+                        trip.platform === 'Vrbo' ? 'bg-red-500' :
                         'bg-orange-500'
                       }`} />
                       {trip.platform}
@@ -2317,7 +2439,7 @@ const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
   const [progress, setProgress] = useState(0);
   const [currentPlatformIndex, setCurrentPlatformIndex] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const platforms = ['Booking.com', 'Airbnb', 'Expedia', 'Vrbo', 'Agoda', 'Hotels.com', 'TripAdvisor', 'Trivago'];
+  const platforms = ['Booking.com', 'Expedia', 'Vrbo', 'Agoda', 'Hotels.com', 'TripAdvisor', 'Trivago'];
   
   const backgroundImages = [
     'https://images.unsplash.com/photo-1516483638261-f40889c28a5d?auto=format&fit=crop&q=80&w=2000', // Italy
@@ -2458,6 +2580,7 @@ export default function App() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Default to false to show registration flow
+  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
 
   const handleSearch = () => {
     if (!isLoggedIn) {
@@ -2518,6 +2641,7 @@ export default function App() {
           onSignOut={handleSignOut}
           onNavigateSettings={() => setScreen('settings')}
           onNavigateTrips={() => setScreen('trips')}
+          onNavigateReferral={() => setIsReferralModalOpen(true)}
         />
       )}
       
@@ -2634,6 +2758,10 @@ export default function App() {
           </div>
         </>
       )}
+
+      <AnimatePresence>
+        {isReferralModalOpen && <ReferralModal onClose={() => setIsReferralModalOpen(false)} />}
+      </AnimatePresence>
     </div>
   );
 }
