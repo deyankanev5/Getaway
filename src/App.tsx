@@ -10,6 +10,7 @@ import {
   ChevronDown, 
   Sparkles, 
   ArrowLeft, 
+  ArrowRight,
   Star, 
   ShieldCheck, 
   AlertTriangle, 
@@ -241,12 +242,12 @@ const CalendarModal = ({ isOpen, onClose, range, setRange }: { isOpen: boolean, 
 
 const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?: 'per_night' | 'total', budgetValue?: number) => void, currency: Currency, isLoggedIn: boolean }) => {
   const [step, setStep] = useState(1);
-  const [destinationType, setDestinationType] = useState<'flexible' | 'specific'>('flexible');
   const [destination, setDestination] = useState<string>('');
   const [destinationInput, setDestinationInput] = useState('');
   
   const [dateType, setDateType] = useState<'flexible' | 'specific'>('flexible');
   const [duration, setDuration] = useState<string>('');
+  const [flexibleMonths, setFlexibleMonths] = useState<string[]>([]);
   const [specificDates, setSpecificDates] = useState<DateRange>({ start: null, end: null });
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   
@@ -259,18 +260,28 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
   const [isFinished, setIsFinished] = useState(false);
 
   const destinationOptions = [
-    { id: 'anywhere', icon: '🌍', label: 'Surprise me (Anywhere)' },
-    { id: 'europe', icon: '🏰', label: 'Europe' },
-    { id: 'americas', icon: '🗽', label: 'Americas' },
-    { id: 'asia', icon: '⛩️', label: 'Asia' },
-    { id: 'oceania', icon: '🦘', label: 'Oceania & Pacific' }
+    { id: 'italy', image: 'https://images.unsplash.com/photo-1516483638261-f40889c28a5d?auto=format&fit=crop&q=80&w=400', label: 'Italy' },
+    { id: 'japan', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=400', label: 'Japan' },
+    { id: 'greece', image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80&w=400', label: 'Greece' },
+    { id: 'spain', image: 'https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&q=80&w=400', label: 'Spain' },
+    { id: 'france', image: 'https://images.unsplash.com/photo-1502602881462-f2242811c38a?auto=format&fit=crop&q=80&w=400', label: 'France' },
+    { id: 'mexico', image: 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?auto=format&fit=crop&q=80&w=400', label: 'Mexico' }
   ];
 
   const durationOptions = [
-    { id: 'weekend', label: 'Weekend Getaway' },
-    { id: 'week', label: 'About a week' },
+    { id: 'weekend', label: 'Weekend getaway' },
+    { id: 'week', label: 'One week' },
     { id: 'two_weeks', label: 'Two weeks' },
-    { id: 'month', label: 'Month+' }
+    { id: 'month', label: 'A month+' }
+  ];
+
+  const monthOptions = [
+    { id: 'anytime', label: 'Anytime' },
+    { id: 'jun', label: 'June' },
+    { id: 'jul', label: 'July' },
+    { id: 'aug', label: 'August' },
+    { id: 'sep', label: 'September' },
+    { id: 'oct', label: 'October' }
   ];
 
   const tripOptions = ['Relaxation', 'Adventure', 'Culture & History', 'Food & Nightlife', 'Beach', 'Mountains', 'City Break'];
@@ -285,6 +296,21 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
 
   const toggleTripType = (type: string) => {
     setTripTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
+  };
+
+  const toggleFlexibleMonth = (monthId: string) => {
+    if (monthId === 'anytime') {
+      setFlexibleMonths(['anytime']);
+    } else {
+      setFlexibleMonths(prev => {
+        const withoutAnytime = prev.filter(m => m !== 'anytime');
+        if (withoutAnytime.includes(monthId)) {
+          return withoutAnytime.filter(m => m !== monthId);
+        } else {
+          return [...withoutAnytime, monthId];
+        }
+      });
+    }
   };
 
   const togglePriority = (priority: string) => {
@@ -337,43 +363,38 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
                 
                 <div className="space-y-8 max-w-md mx-auto">
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-bold text-navy-900">Destination</h3>
-                      <div className="flex p-0.5 bg-slate-100 rounded-lg">
-                        <button onClick={() => setDestinationType('flexible')} className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${destinationType === 'flexible' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}>Region Picker</button>
-                        <button onClick={() => setDestinationType('specific')} className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${destinationType === 'specific' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}>Specific Search</button>
-                      </div>
-                    </div>
+                    <h3 className="text-sm font-bold text-navy-900">Destination</h3>
                     
-                    {destinationType === 'flexible' ? (
-                      <div className="grid grid-cols-2 gap-3">
-                        {destinationOptions.map(option => (
-                          <button
-                            key={option.id}
-                            onClick={() => { setDestination(option.id); setDestinationInput(''); }}
-                            className={`w-full p-4 rounded-2xl border flex flex-col items-center gap-2 text-sm font-medium transition-all ${
-                              destination === option.id && destinationInput === ''
-                                ? 'border-navy-900 bg-navy-50 text-navy-900'
-                                : 'border-slate-200 text-slate-600 hover:border-navy-900'
-                            } ${option.id === 'anywhere' ? 'col-span-2' : ''}`}
-                          >
-                            <span className="text-2xl">{option.icon}</span>
-                            <span>{option.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
+                    <div className="space-y-4">
                       <div className="relative">
                         <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input 
                           type="text" 
                           value={destinationInput}
                           onChange={(e) => { setDestinationInput(e.target.value); setDestination(''); }}
-                          placeholder="e.g. Paris, Japan, or Bali..." 
+                          placeholder="e.g. Search for a specific country or city..." 
                           className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/10 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-400 text-sm"
                         />
                       </div>
-                    )}
+                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">Or choose popular</h4>
+                      <div className="grid grid-cols-3 gap-3">
+                        {destinationOptions.map(option => (
+                          <button
+                            key={option.id}
+                            onClick={() => { setDestination(option.id); setDestinationInput(''); }}
+                            className={`w-full overflow-hidden rounded-2xl border transition-all relative aspect-video flex items-end justify-start group ${
+                              destination === option.id && destinationInput === ''
+                                ? 'border-navy-900 ring-2 ring-navy-900/20'
+                                : 'border-slate-200 hover:border-navy-900/50'
+                            }`}
+                          >
+                            <img src={option.image} alt={option.label} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent"></div>
+                            <span className="relative z-10 text-white font-bold text-sm p-3 shadow-sm">{option.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-3">
@@ -386,20 +407,43 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
                     </div>
                     
                     {dateType === 'flexible' ? (
-                      <div className="grid grid-cols-2 gap-3">
-                        {durationOptions.map(option => (
-                          <button
-                            key={option.id}
-                            onClick={() => setDuration(option.id)}
-                            className={`w-full p-3 rounded-xl border text-sm font-medium transition-all flex items-center justify-center ${
-                              duration === option.id
-                                ? 'border-navy-900 bg-navy-50 text-navy-900'
-                                : 'border-slate-200 text-slate-600 hover:border-navy-900'
-                            }`}
-                          >
-                            {option.label}
-                          </button>
-                        ))}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-400">How long?</label>
+                          <div className="grid grid-cols-2 gap-3">
+                            {durationOptions.map(option => (
+                              <button
+                                key={option.id}
+                                onClick={() => setDuration(option.id)}
+                                className={`w-full p-3 rounded-xl border text-sm font-medium transition-all flex items-center justify-center ${
+                                  duration === option.id
+                                    ? 'border-navy-900 bg-navy-50 text-navy-900'
+                                    : 'border-slate-200 text-slate-600 hover:border-navy-900'
+                                }`}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-400">When?</label>
+                          <div className="flex flex-wrap gap-2">
+                            {monthOptions.map(option => (
+                              <button
+                                key={option.id}
+                                onClick={() => toggleFlexibleMonth(option.id)}
+                                className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
+                                  flexibleMonths.includes(option.id)
+                                    ? 'border-navy-900 bg-navy-50 text-navy-900'
+                                    : 'border-slate-200 text-slate-600 hover:border-navy-900'
+                                }`}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div 
@@ -568,7 +612,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               ) : <div />}
               <button 
                 onClick={nextStep}
-                disabled={(step === 1 && (!destination || !duration)) || (step === 2 && !travelType) || (step === 3 && tripTypes.length < 2) || (step === 4 && priorities.length < 1)}
+                disabled={(step === 1 && ((!destination && !destinationInput) || (dateType === 'flexible' ? (!duration || flexibleMonths.length === 0) : !specificDates.start))) || (step === 2 && !travelType) || (step === 3 && tripTypes.length < 2) || (step === 4 && priorities.length < 1)}
                 className="bg-navy-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-navy-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {step === 5 ? 'Finish Profile' : 'Next Step'}
@@ -595,12 +639,14 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
             <div className="w-full max-w-md bg-slate-50 rounded-3xl p-8 border border-slate-100 text-left space-y-6">
               <div className="space-y-3">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Where & When</label>
-                <div className="font-bold text-navy-900">
-                  {destinationType === 'specific' ? destinationInput : destinationOptions.find(d => d.id === destination)?.label}
-                  <span className="text-slate-400 font-normal mx-2">·</span>
-                  {dateType === 'specific' 
-                    ? (specificDates.start && specificDates.end ? `${format(specificDates.start, 'MMM d')} - ${format(specificDates.end, 'MMM d')}` : 'Specific Dates')
-                    : durationOptions.find(d => d.id === duration)?.label}
+                <div className="font-bold text-navy-900 flex items-center flex-wrap gap-1">
+                  <span>{destinationInput ? destinationInput : destinationOptions.find(d => d.id === destination)?.label}</span>
+                  <span className="text-slate-400 font-normal mx-1">·</span>
+                  <span>
+                    {dateType === 'specific' 
+                      ? (specificDates.start && specificDates.end ? `${format(specificDates.start, 'MMM d')} - ${format(specificDates.end, 'MMM d')}` : 'Specific Dates')
+                      : `${durationOptions.find(d => d.id === duration)?.label} in ${flexibleMonths.map(m => monthOptions.find(opt => opt.id === m)?.label).join(', ')}`}
+                  </span>
                 </div>
               </div>
 
@@ -2047,101 +2093,146 @@ const Registration = ({ onLogin, onBack }: { onLogin: () => void, onBack: () => 
   const [isLogin, setIsLogin] = useState(false);
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-8 flex items-center justify-center relative bg-slate-50">
-      <button onClick={onBack} className="absolute top-24 left-8 flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-navy-900 transition-colors">
+    <div className="h-screen w-full flex overflow-hidden bg-navy-900">
+      {/* Background Image Panel (Left Side on Desktop, Hidden on Mobile/Background) */}
+      <div className="absolute inset-0 lg:relative lg:w-[45%] lg:flex-shrink-0 h-full">
+        <img 
+          src="https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&q=80&w=2000" 
+          alt="Beautiful beach" 
+          className="w-full h-full object-cover opacity-40 lg:opacity-100"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/60 to-transparent lg:from-navy-900/40 lg:via-transparent lg:to-navy-900/40" />
+        
+        {/* On-image copy (Desktop only) */}
+        <div className="hidden lg:flex absolute inset-0 flex-col justify-end p-16 text-white text-left">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 border border-white/20">
+              <Sparkles className="w-8 h-8 text-teal-400" />
+            </div>
+            <h2 className="text-4xl font-display font-bold mb-4 leading-tight">Unlock your<br/>personalized trip.</h2>
+            <p className="text-white/80 text-lg max-w-md font-medium">
+              We've created a custom profile based on your answers. Log in or create an account to view the best hand-picked properties matching your exact vibe.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Back Button */}
+      <button onClick={onBack} className="absolute top-8 left-8 z-20 flex items-center gap-2 text-sm font-bold text-white lg:text-white/80 lg:hover:text-white transition-colors bg-navy-900/40 lg:bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
         <ArrowLeft className="w-4 h-4" /> 
         Back to Search
       </button>
-      <div className="bg-white rounded-[40px] shadow-2xl shadow-navy-900/10 border border-slate-100 p-10 max-w-[440px] w-full relative overflow-hidden">
-        {/* Decorative background element */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-teal-50 rounded-full blur-3xl opacity-60"></div>
-        
-        <div className="relative z-10 text-center mb-8">
-          <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-navy-900/20">
-            <Sparkles className="w-8 h-8 text-teal-400" />
-          </div>
-          <h2 className="font-display text-3xl font-bold text-navy-900 mb-3">{isLogin ? 'Welcome back' : 'Create your account'}</h2>
-          <p className="text-slate-500 font-medium text-sm px-4">
-            {isLogin ? 'Log in to access your saved trips and personalized searches.' : 'Save your preferences, compare properties, and unlock personalized AI searches.'}
-          </p>
-        </div>
 
-        <form className="relative z-10 space-y-4 mb-6" onSubmit={(e) => { e.preventDefault(); onLogin(); }}>
-          {!isLogin && (
+      {/* Form Panel (Right Side) */}
+      <div className="relative z-10 w-full lg:w-[55%] flex items-center justify-center p-6 lg:p-16 h-full overflow-y-auto">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white/95 backdrop-blur-xl rounded-[40px] shadow-2xl border border-white/20 p-8 lg:p-12 w-full max-w-[480px]"
+        >
+          {/* Mobile Copy */}
+          <div className="lg:hidden text-center mb-8">
+            <div className="w-16 h-16 bg-navy-900 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-navy-900/20">
+              <Sparkles className="w-8 h-8 text-teal-400" />
+            </div>
+            <h2 className="font-display text-2xl font-bold text-navy-900 mb-2">See your matches</h2>
+            <p className="text-slate-500 font-medium text-sm">
+              Log in or create an account to view the best offers based on your preferences.
+            </p>
+          </div>
+
+          <div className="lg:flex flex-col items-start mb-8 hidden">
+             <h2 className="font-display text-3xl font-bold text-navy-900 mb-2">
+               {isLogin ? 'Welcome back' : 'Create an account'}
+             </h2>
+             <p className="text-slate-500 font-medium text-sm">
+               Log in or create an account to view the best offers based on your preferences.
+             </p>
+          </div>
+
+          {/* Toggle Login/Signup */}
+          <div className="flex p-1 bg-slate-100 rounded-xl mb-8">
+            <button 
+              onClick={() => setIsLogin(false)}
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${!isLogin ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+            >
+              Sign Up
+            </button>
+            <button 
+              onClick={() => setIsLogin(true)}
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${isLogin ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+            >
+              Log In
+            </button>
+          </div>
+
+          <form className="space-y-4 mb-6" onSubmit={(e) => { e.preventDefault(); onLogin(); }}>
             <div>
-              <label className="sr-only">Full Name</label>
+              <label className="sr-only">Email Address</label>
               <input 
-                type="text" 
-                placeholder="Full Name" 
-                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all placeholder:text-slate-400 font-medium text-navy-900"
+                type="email" 
+                placeholder="Email Address" 
+                className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-navy-900 placeholder:text-slate-400"
               />
             </div>
-          )}
-          <div>
-            <label className="sr-only">Email Address</label>
-            <input 
-              type="email" 
-              placeholder="Email Address" 
-              className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all placeholder:text-slate-400 font-medium text-navy-900"
-            />
-          </div>
-          <div>
-            <label className="sr-only">Password</label>
-            <input 
-              type="password" 
-              placeholder="Password" 
-              className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all placeholder:text-slate-400 font-medium text-navy-900"
-            />
-          </div>
-          <button 
-            type="submit"
-            className="w-full py-4 px-6 bg-navy-900 text-white rounded-2xl font-bold hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/20 active:scale-[0.98]"
-          >
-            {isLogin ? 'Log In' : 'Sign Up'}
-          </button>
-        </form>
+            <div>
+              <label className="sr-only">Password</label>
+              <input 
+                type="password" 
+                placeholder="Password" 
+                className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-navy-900 placeholder:text-slate-400"
+              />
+            </div>
+            <button 
+              type="submit"
+              className="w-full py-4 px-6 bg-navy-900 text-white rounded-2xl font-bold hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/20 active:scale-[0.98] mt-2 group flex items-center justify-center gap-2"
+            >
+              <span>{isLogin ? 'Log In' : 'Continue'}</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </form>
 
-        <div className="relative z-10 flex items-center gap-4 mb-6">
-          <div className="h-px bg-slate-200 flex-1"></div>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Or continue with</span>
-          <div className="h-px bg-slate-200 flex-1"></div>
-        </div>
-        
-        <div className="relative z-10 grid grid-cols-2 gap-3 mb-6">
-          <button 
-            onClick={onLogin}
-            type="button"
-            className="py-3 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors group"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            <span className="font-semibold text-sm text-slate-700">Google</span>
-          </button>
-          <button 
-            onClick={onLogin}
-            type="button"
-            className="py-3 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors group"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.253 3.513 7.59 9.053 7.31c1.35.07 2.33.68 3.12.68.73 0 1.94-.74 3.48-.62 1.4.11 2.56.65 3.33 1.77-2.91 1.63-2.4 5.76.54 6.94-1.07 2.72-2.48 4.24-2.47 4.2zm-4.75-20.2c-1.32.06-2.82.88-3.78 1.98-.82.95-1.52 2.38-1.28 3.74 1.48.16 2.8-.75 3.73-1.87.8-1 1.48-2.4 1.33-3.85z"/>
-            </svg>
-            <span className="font-semibold text-sm text-slate-700">Apple</span>
-          </button>
-        </div>
-
-        <p className="relative z-10 text-center text-sm text-slate-500 font-medium">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-          <button 
-            onClick={() => setIsLogin(!isLogin)} 
-            className="text-teal-600 font-bold hover:text-teal-700 transition-colors"
-          >
-            {isLogin ? 'Sign up' : 'Log in'}
-          </button>
-        </p>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="h-px bg-slate-200 flex-1"></div>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Or continue with</span>
+            <div className="h-px bg-slate-200 flex-1"></div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <button 
+              onClick={onLogin}
+              type="button"
+              className="py-3 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              <span className="font-semibold text-sm text-slate-700">Google</span>
+            </button>
+            <button 
+              onClick={onLogin}
+              type="button"
+              className="py-3 px-4 bg-white border border-slate-200 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.253 3.513 7.59 9.053 7.31c1.35.07 2.33.68 3.12.68.73 0 1.94-.74 3.48-.62 1.4.11 2.56.65 3.33 1.77-2.91 1.63-2.4 5.76.54 6.94-1.07 2.72-2.48 4.24-2.47 4.2zm-4.75-20.2c-1.32.06-2.82.88-3.78 1.98-.82.95-1.52 2.38-1.28 3.74 1.48.16 2.8-.75 3.73-1.87.8-1 1.48-2.4 1.33-3.85z"/>
+              </svg>
+              <span className="font-semibold text-sm text-slate-700">Apple</span>
+            </button>
+          </div>
+          
+          <p className="text-center text-xs text-slate-400 font-medium px-4 mt-6">
+            By continuing, you agree to our Terms of Service and Privacy Policy.
+          </p>
+        </motion.div>
       </div>
     </div>
   );
@@ -2225,11 +2316,21 @@ const Promo = ({ onContinue }: { onContinue: () => void }) => {
 const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
   const [progress, setProgress] = useState(0);
   const [currentPlatformIndex, setCurrentPlatformIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const platforms = ['Booking.com', 'Airbnb', 'Expedia', 'Vrbo', 'Agoda', 'Hotels.com', 'TripAdvisor', 'Trivago'];
+  
+  const backgroundImages = [
+    'https://images.unsplash.com/photo-1516483638261-f40889c28a5d?auto=format&fit=crop&q=80&w=2000', // Italy
+    'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=2000', // Japan
+    'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80&w=2000', // Greece
+    'https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&q=80&w=2000', // Spain
+  ];
+
   const [propertiesAnalyzed, setPropertiesAnalyzed] = useState(0);
 
   useEffect(() => {
-    const duration = 4000;
+    // Slower duration: 7000ms
+    const duration = 7000;
     const interval = 30;
     const steps = duration / interval;
     let currentStep = 0;
@@ -2241,15 +2342,19 @@ const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
       
       // Easing function for numbers to look like more intensive scanning towards the end
       const easeInQuad = (t: number) => t * t;
-      setPropertiesAnalyzed(Math.floor(easeInQuad(currentStep / steps) * 3429));
+      setPropertiesAnalyzed(Math.floor(easeInQuad(currentStep / steps) * 5842));
       
       if (currentStep % Math.floor(steps / platforms.length) === 0) {
         setCurrentPlatformIndex(prev => (prev + 1) % platforms.length);
       }
+      
+      if (currentStep % Math.floor(steps / backgroundImages.length) === 0) {
+        setCurrentImageIndex(prev => (prev + 1) % backgroundImages.length);
+      }
 
       if (currentStep >= steps) {
         clearInterval(timer);
-        setTimeout(onComplete, 400);
+        setTimeout(onComplete, 500);
       }
     }, interval);
 
@@ -2257,33 +2362,46 @@ const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
   }, [onComplete]);
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-8 flex items-center justify-center relative bg-slate-50 overflow-hidden">
-      {/* Decorative ambient background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-100 rounded-full blur-[100px] opacity-40"></div>
-      <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] bg-navy-100 rounded-full blur-[80px] opacity-30"></div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-navy-900">
+      
+      {/* Background Images with AnimatePresence for crossfading */}
+      <AnimatePresence mode="popLayout">
+        <motion.img
+          key={currentImageIndex}
+          src={backgroundImages[currentImageIndex]}
+          alt="Destination background"
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 0.6, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.5, ease: "easeInOut" }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </AnimatePresence>
 
-      <div className="bg-white/80 backdrop-blur-xl rounded-[40px] shadow-2xl shadow-navy-900/10 border border-white p-12 max-w-[500px] w-full text-center relative z-10">
+      <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/40 to-navy-900/90" />
+
+      <div className="bg-white/10 backdrop-blur-2xl rounded-[40px] shadow-2xl border border-white/20 p-12 max-w-[500px] w-full mx-6 text-center relative z-10">
         
         {/* Animated Scanner Ring */}
         <div className="relative w-24 h-24 mx-auto mb-10">
-          <div className="absolute inset-0 bg-teal-50 rounded-3xl rotate-12 scale-105"></div>
-          <div className="absolute inset-0 bg-navy-50 rounded-3xl -rotate-6"></div>
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-3xl rotate-12 scale-105 border border-white/10"></div>
+          <div className="absolute inset-0 bg-white/20 backdrop-blur-md rounded-3xl -rotate-6 border border-white/10"></div>
           <motion.div 
             animate={{ rotate: 360 }} 
             transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 border-[3px] border-transparent border-t-teal-500 border-r-teal-500 rounded-3xl"
+            className="absolute inset-0 border-[3px] border-transparent border-t-white border-r-white rounded-3xl"
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-white rounded-3xl shadow-sm border border-slate-100">
+          <div className="absolute inset-0 flex items-center justify-center bg-navy-900/50 backdrop-blur-xl rounded-3xl shadow-sm border border-white/20">
             <motion.div
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Sparkles className="w-8 h-8 text-teal-600" />
+              <Sparkles className="w-8 h-8 text-white" />
             </motion.div>
           </div>
         </div>
         
-        <h2 className="font-display text-3xl font-bold text-navy-900 mb-3 tracking-tight">Curating your stays</h2>
+        <h2 className="font-display text-3xl font-bold text-white mb-3 tracking-tight">Curating your stays</h2>
         <div className="h-8 flex items-center justify-center overflow-hidden mb-8 relative">
           <AnimatePresence mode="popLayout">
             <motion.p 
@@ -2292,36 +2410,36 @@ const Analyzing = ({ onComplete }: { onComplete: () => void }) => {
                animate={{ y: 0, opacity: 1 }}
                exit={{ y: -20, opacity: 0 }}
                transition={{ duration: 0.3 }}
-               className="text-slate-500 font-medium absolute"
+               className="text-white/70 font-medium absolute"
             >
-              Scanning <strong className="text-navy-900">{platforms[currentPlatformIndex]}</strong>
+              Scanning <strong className="text-white">{platforms[currentPlatformIndex]}</strong>
             </motion.p>
           </AnimatePresence>
         </div>
         
         {/* Progress Display */}
-        <div className="bg-white rounded-2xl p-6 mb-8 border border-slate-100 shadow-sm relative overflow-hidden">
+        <div className="bg-navy-900/40 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/10 shadow-sm relative overflow-hidden">
           <motion.div
-            className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 skew-x-12"
+            className="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50 skew-x-12"
             animate={{ left: ['-100%', '200%'] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
           />
           <div className="flex justify-between items-end mb-3 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></div>
-              <span className="text-slate-500 font-medium tracking-wide">ANALYZING</span>
+              <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></div>
+              <span className="text-white/70 font-medium tracking-wide">ANALYZING</span>
             </div>
-            <span className="font-bold text-navy-900 text-lg tabular-nums">{propertiesAnalyzed.toLocaleString()} <span className="text-sm text-slate-400 font-medium">properties</span></span>
+            <span className="font-bold text-white text-lg tabular-nums">{propertiesAnalyzed.toLocaleString()} <span className="text-sm text-white/50 font-medium">properties</span></span>
           </div>
-          <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-2.5 bg-white/10 rounded-full overflow-hidden">
             <motion.div 
-              className="h-full bg-gradient-to-r from-teal-400 to-teal-500 rounded-full relative"
+              className="h-full bg-gradient-to-r from-teal-400 to-teal-300 rounded-full relative"
               initial={{ width: "0%" }}
               animate={{ width: `${progress}%` }}
               transition={{ ease: "linear", duration: 0.05 }} // Match interval
             >
                <motion.div 
-                 className="absolute top-0 right-0 bottom-0 w-8 bg-white/30 blur-[2px]"
+                 className="absolute top-0 right-0 bottom-0 w-8 bg-white/50 blur-[2px]"
                  animate={{ x: [-20, 20] }}
                  transition={{ duration: 0.8, repeat: Infinity, ease: 'easeInOut', repeatType: 'reverse' }}
                />
@@ -2391,15 +2509,17 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 selection:bg-teal-100 selection:text-teal-900">
-      <Navbar 
-        onHome={handleHome} 
-        currency={currency} 
-        setCurrency={setCurrency} 
-        isLoggedIn={isLoggedIn} 
-        onSignOut={handleSignOut}
-        onNavigateSettings={() => setScreen('settings')}
-        onNavigateTrips={() => setScreen('trips')}
-      />
+      {screen !== 'registration' && (
+        <Navbar 
+          onHome={handleHome} 
+          currency={currency} 
+          setCurrency={setCurrency} 
+          isLoggedIn={isLoggedIn} 
+          onSignOut={handleSignOut}
+          onNavigateSettings={() => setScreen('settings')}
+          onNavigateTrips={() => setScreen('trips')}
+        />
+      )}
       
       <main>
         <AnimatePresence mode="wait">
@@ -2501,10 +2621,19 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      {/* Footer / Background Accents */}
-      <div className="fixed bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-      <div className="fixed -bottom-40 -left-40 w-96 h-96 bg-teal-500/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="fixed -top-40 -right-40 w-96 h-96 bg-action-blue/5 blur-[120px] rounded-full pointer-events-none" />
+      {screen !== 'registration' && (
+        <>
+          {/* Footer / Background Accents */}
+          <div className="fixed bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+          <div className="fixed -bottom-40 -left-40 w-96 h-96 bg-teal-500/5 blur-[120px] rounded-full pointer-events-none" />
+          <div className="fixed -top-40 -right-40 w-96 h-96 bg-action-blue/5 blur-[120px] rounded-full pointer-events-none" />
+          
+          {/* Version & Build Timestamp */}
+          <div className="fixed bottom-3 right-4 text-[10px] text-slate-400 font-medium z-50 pointer-events-none">
+            v1.0.0 • Updated: May 17, 2026
+          </div>
+        </>
+      )}
     </div>
   );
 }
