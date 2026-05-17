@@ -376,16 +376,17 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
   const [travelType, setTravelType] = useState<string>('');
   const [tripTypes, setTripTypes] = useState<string[]>([]);
   const [priorities, setPriorities] = useState<string[]>([]);
-  const [budget, setBudget] = useState(1000);
+  const [budget, setBudget] = useState(2000);
   const [styleBoutique, setStyleBoutique] = useState(true);
   const [stylePacker, setStylePacker] = useState(true);
+  const [prompt, setPrompt] = useState<string>('');
   const [isFinished, setIsFinished] = useState(false);
 
   const destinationOptions = [
     { id: 'italy', image: 'https://images.unsplash.com/photo-1516483638261-f40889c28a5d?auto=format&fit=crop&q=80&w=400', label: 'Italy' },
     { id: 'japan', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=400', label: 'Japan' },
     { id: 'greece', image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80&w=400', label: 'Greece' },
-    { id: 'spain', image: 'https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&q=80&w=400', label: 'Spain' },
+    { id: 'spain', image: 'https://images.unsplash.com/photo-1539037116-2a78ee4b4dc4?auto=format&fit=crop&q=80&w=400', label: 'Spain' },
     { id: 'france', image: 'https://images.unsplash.com/photo-1502602881462-f2242811c38a?auto=format&fit=crop&q=80&w=400', label: 'France' },
     { id: 'mexico', image: 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?auto=format&fit=crop&q=80&w=400', label: 'Mexico' }
   ];
@@ -504,15 +505,20 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
                           <button
                             key={option.id}
                             onClick={() => { setDestination(option.id); setDestinationInput(''); }}
-                            className={`w-full overflow-hidden rounded-2xl border transition-all relative aspect-video flex items-end justify-start group ${
+                            className={`w-full overflow-hidden rounded-2xl transition-all relative aspect-video flex items-end justify-start group ${
                               destination === option.id && destinationInput === ''
-                                ? 'border-navy-900 ring-2 ring-navy-900/20'
-                                : 'border-slate-200 hover:border-navy-900/50'
+                                ? 'ring-4 ring-teal-500 scale-[0.98]'
+                                : 'ring-1 ring-slate-200 hover:ring-2 hover:ring-navy-900/50'
                             }`}
                           >
                             <img src={option.image} alt={option.label} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                             <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent"></div>
                             <span className="relative z-10 text-white font-bold text-sm p-3 shadow-sm">{option.label}</span>
+                            {destination === option.id && destinationInput === '' && (
+                              <div className="absolute top-2 right-2 bg-teal-500 text-white rounded-full p-1 z-20 shadow-md">
+                                <Check className="w-4 h-4" />
+                              </div>
+                            )}
                           </button>
                         ))}
                       </div>
@@ -679,16 +685,16 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
                 <div className="max-w-md mx-auto space-y-8">
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Nightly Budget</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Total Budget</label>
                       <span className="text-xl font-bold text-navy-900">
                         {currency === 'EUR' ? '€' : '$'}{budget}
                       </span>
                     </div>
                     <input 
                       type="range" 
-                      min="200" 
-                      max="2000" 
-                      step="100"
+                      min="500" 
+                      max="10000" 
+                      step="500"
                       value={budget}
                       onChange={(e) => setBudget(parseInt(e.target.value))}
                       className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-navy-900"
@@ -797,7 +803,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Budget</label>
-                  <p className="font-bold text-navy-900">{currency === 'EUR' ? '€' : '$'}{budget}/night</p>
+                  <p className="font-bold text-navy-900">Max {currency === 'EUR' ? '€' : '$'}{budget}</p>
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Style</label>
@@ -806,8 +812,21 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               </div>
             </div>
 
+            <div className="w-full max-w-md space-y-3 mt-4 text-left">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Any specific requests?</label>
+              <div className="relative">
+                <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
+                <textarea 
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="e.g. Needs a hot tub and mountain views..." 
+                  className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-400 resize-none min-h-[100px] shadow-sm"
+                />
+              </div>
+            </div>
+
             <button 
-              onClick={onSearch}
+              onClick={() => onSearch('total', budget)}
               className="w-full max-w-md py-5 bg-navy-900 text-white rounded-[24px] font-display font-bold text-xl flex items-center justify-center gap-4 hover:bg-navy-800 transition-all group relative overflow-hidden shadow-2xl shadow-navy-900/30"
             >
               <div className="absolute inset-0 ai-sparkle opacity-0 group-hover:opacity-10 transition-opacity" />
@@ -840,8 +859,9 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetTyp
   const [smokingAllowed, setSmokingAllowed] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({ start: null, end: null });
-  const [budgetType, setBudgetType] = useState<'per_night' | 'total'>('per_night');
+  const [budgetType, setBudgetType] = useState<'per_night' | 'total'>('total');
   const [budgetValue, setBudgetValue] = useState<number | ''>('');
+  const [prompt, setPrompt] = useState<string>('');
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -994,6 +1014,19 @@ const SearchOrQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetTyp
                       </select>
                       <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                     </div>
+                  </div>
+                </div>
+
+                <div className="px-10 pb-6 space-y-3 mt-4">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Any specific requests?</label>
+                  <div className="relative">
+                    <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
+                    <textarea 
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="e.g. A quiet place with a balcony overlooking the sea..." 
+                      className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/5 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-300 resize-none min-h-[100px]"
+                    />
                   </div>
                 </div>
 
