@@ -241,6 +241,15 @@ const CalendarModal = ({ isOpen, onClose, range, setRange }: { isOpen: boolean, 
 
 const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?: 'per_night' | 'total', budgetValue?: number) => void, currency: Currency, isLoggedIn: boolean }) => {
   const [step, setStep] = useState(1);
+  const [destinationType, setDestinationType] = useState<'flexible' | 'specific'>('flexible');
+  const [destination, setDestination] = useState<string>('');
+  const [destinationInput, setDestinationInput] = useState('');
+  
+  const [dateType, setDateType] = useState<'flexible' | 'specific'>('flexible');
+  const [duration, setDuration] = useState<string>('');
+  const [specificDates, setSpecificDates] = useState<DateRange>({ start: null, end: null });
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  
   const [travelType, setTravelType] = useState<string>('');
   const [tripTypes, setTripTypes] = useState<string[]>([]);
   const [priorities, setPriorities] = useState<string[]>([]);
@@ -248,6 +257,21 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
   const [styleBoutique, setStyleBoutique] = useState(true);
   const [stylePacker, setStylePacker] = useState(true);
   const [isFinished, setIsFinished] = useState(false);
+
+  const destinationOptions = [
+    { id: 'anywhere', icon: '🌍', label: 'Surprise me (Anywhere)' },
+    { id: 'europe', icon: '🏰', label: 'Europe' },
+    { id: 'americas', icon: '🗽', label: 'Americas' },
+    { id: 'asia', icon: '⛩️', label: 'Asia' },
+    { id: 'oceania', icon: '🦘', label: 'Oceania & Pacific' }
+  ];
+
+  const durationOptions = [
+    { id: 'weekend', label: 'Weekend Getaway' },
+    { id: 'week', label: 'About a week' },
+    { id: 'two_weeks', label: 'Two weeks' },
+    { id: 'month', label: 'Month+' }
+  ];
 
   const tripOptions = ['Relaxation', 'Adventure', 'Culture & History', 'Food & Nightlife', 'Beach', 'Mountains', 'City Break'];
   const priorityOptions = ['Location & Neighborhood', 'Cleanliness & Quiet', 'Unique Vibe', 'Price & Value', 'Trust & Reviews'];
@@ -272,7 +296,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
   };
 
   const nextStep = () => {
-    if (step < 4) setStep(step + 1);
+    if (step < 5) setStep(step + 1);
     else setIsFinished(true);
   };
 
@@ -282,7 +306,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
 
   const renderStepIndicator = () => (
     <div className="flex justify-center gap-2 mb-8">
-      {[1, 2, 3, 4].map(s => (
+      {[1, 2, 3, 4, 5].map(s => (
         <div 
           key={s} 
           className={`w-2 h-2 rounded-full transition-all duration-300 ${step === s ? 'w-6 bg-navy-900' : 'bg-slate-200'}`} 
@@ -305,6 +329,100 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
             {renderStepIndicator()}
             
             {step === 1 && (
+              <div className="space-y-10">
+                <div className="text-center">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Where & When</label>
+                  <h2 className="text-2xl font-display font-bold text-navy-900 mt-2">Let's narrow it down</h2>
+                </div>
+                
+                <div className="space-y-8 max-w-md mx-auto">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-navy-900">Destination</h3>
+                      <div className="flex p-0.5 bg-slate-100 rounded-lg">
+                        <button onClick={() => setDestinationType('flexible')} className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${destinationType === 'flexible' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}>Region Picker</button>
+                        <button onClick={() => setDestinationType('specific')} className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${destinationType === 'specific' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}>Specific Search</button>
+                      </div>
+                    </div>
+                    
+                    {destinationType === 'flexible' ? (
+                      <div className="grid grid-cols-2 gap-3">
+                        {destinationOptions.map(option => (
+                          <button
+                            key={option.id}
+                            onClick={() => { setDestination(option.id); setDestinationInput(''); }}
+                            className={`w-full p-4 rounded-2xl border flex flex-col items-center gap-2 text-sm font-medium transition-all ${
+                              destination === option.id && destinationInput === ''
+                                ? 'border-navy-900 bg-navy-50 text-navy-900'
+                                : 'border-slate-200 text-slate-600 hover:border-navy-900'
+                            } ${option.id === 'anywhere' ? 'col-span-2' : ''}`}
+                          >
+                            <span className="text-2xl">{option.icon}</span>
+                            <span>{option.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                        <input 
+                          type="text" 
+                          value={destinationInput}
+                          onChange={(e) => { setDestinationInput(e.target.value); setDestination(''); }}
+                          placeholder="e.g. Paris, Japan, or Bali..." 
+                          className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-navy-900/10 focus:border-navy-900 transition-all text-navy-900 font-medium placeholder:text-slate-400 text-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-navy-900">Dates</h3>
+                      <div className="flex p-0.5 bg-slate-100 rounded-lg">
+                        <button onClick={() => setDateType('flexible')} className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${dateType === 'flexible' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}>Flexible</button>
+                        <button onClick={() => setDateType('specific')} className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${dateType === 'specific' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}>Specific</button>
+                      </div>
+                    </div>
+                    
+                    {dateType === 'flexible' ? (
+                      <div className="grid grid-cols-2 gap-3">
+                        {durationOptions.map(option => (
+                          <button
+                            key={option.id}
+                            onClick={() => setDuration(option.id)}
+                            className={`w-full p-3 rounded-xl border text-sm font-medium transition-all flex items-center justify-center ${
+                              duration === option.id
+                                ? 'border-navy-900 bg-navy-50 text-navy-900'
+                                : 'border-slate-200 text-slate-600 hover:border-navy-900'
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div 
+                        onClick={() => setIsCalendarOpen(true)}
+                        className="relative cursor-pointer group"
+                      >
+                        <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-hover:text-navy-900 transition-colors" />
+                        <div className={`w-full pl-12 pr-4 py-4 bg-white border rounded-2xl transition-all text-sm font-medium flex items-center justify-between ${specificDates.start ? 'border-navy-900 text-navy-900 shadow-sm shadow-navy-900/5' : 'border-slate-200 text-slate-400 group-hover:border-navy-900'}`}>
+                          {specificDates.start && specificDates.end 
+                            ? `${format(specificDates.start, 'MMM d')} - ${format(specificDates.end, 'MMM d')}`
+                            : specificDates.start 
+                              ? `${format(specificDates.start, 'MMM d')} - ...`
+                              : 'Select dates...'}
+                          {specificDates.start && <span className="text-[10px] bg-teal-50 text-teal-600 px-2 py-1 rounded-md font-bold uppercase">Selected</span>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
               <div className="space-y-8">
                 <div className="text-center">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Who's this trip for?</label>
@@ -329,7 +447,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               </div>
             )}
 
-            {step === 2 && (
+            {step === 3 && (
               <div className="space-y-8">
                 <div className="text-center">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">What kind of trip are you after?</label>
@@ -353,7 +471,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-8">
                 <div className="text-center">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">What matters most to you?</label>
@@ -385,7 +503,7 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               </div>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
               <div className="space-y-10">
                 <div className="text-center">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Your travel style</label>
@@ -450,10 +568,10 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               ) : <div />}
               <button 
                 onClick={nextStep}
-                disabled={(step === 1 && !travelType) || (step === 2 && tripTypes.length < 2) || (step === 3 && priorities.length < 1)}
+                disabled={(step === 1 && (!destination || !duration)) || (step === 2 && !travelType) || (step === 3 && tripTypes.length < 2) || (step === 4 && priorities.length < 1)}
                 className="bg-navy-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-navy-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {step === 4 ? 'Finish Profile' : 'Next Step'}
+                {step === 5 ? 'Finish Profile' : 'Next Step'}
               </button>
             </div>
           </motion.div>
@@ -475,6 +593,17 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
             </div>
 
             <div className="w-full max-w-md bg-slate-50 rounded-3xl p-8 border border-slate-100 text-left space-y-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Where & When</label>
+                <div className="font-bold text-navy-900">
+                  {destinationType === 'specific' ? destinationInput : destinationOptions.find(d => d.id === destination)?.label}
+                  <span className="text-slate-400 font-normal mx-2">·</span>
+                  {dateType === 'specific' 
+                    ? (specificDates.start && specificDates.end ? `${format(specificDates.start, 'MMM d')} - ${format(specificDates.end, 'MMM d')}` : 'Specific Dates')
+                    : durationOptions.find(d => d.id === duration)?.label}
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Traveling as</label>
                 <div className="font-bold text-navy-900">{travelTypeOptions.find(t => t.id === travelType)?.label}</div>
@@ -518,6 +647,17 @@ const CoupleQuiz = ({ onSearch, currency, isLoggedIn }: { onSearch: (budgetType?
               Find My Matches
             </button>
           </motion.div>
+        )}
+      </AnimatePresence>
+      
+      <AnimatePresence>
+        {isCalendarOpen && (
+          <CalendarModal 
+            isOpen={isCalendarOpen} 
+            onClose={() => setIsCalendarOpen(false)} 
+            range={specificDates} 
+            setRange={setSpecificDates} 
+          />
         )}
       </AnimatePresence>
     </div>
